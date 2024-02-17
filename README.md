@@ -16,3 +16,18 @@ Run the server locally:
 ```
 npm run dev
 ```
+
+Move into the backend directory:
+```
+cd backend
+```
+
+Install the required packages:
+```
+npm i
+```
+
+Run the server locally:
+```
+npm run watch
+```
