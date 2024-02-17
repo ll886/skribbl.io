@@ -1,6 +1,6 @@
 # skribbl.io
 
-## Setting up
+## Running the project on your local machine
 
 Move into the frontend directory:
 ```
