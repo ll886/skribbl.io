@@ -26,21 +26,19 @@ export default function Canvas() {
 
     return (
         <>
-            <div className="w-screen h-screen bg-white flex flex-wrap justify-center items-center">
-                <div className="w-screen flex justify-center items-center">
-                    <canvas
-                        ref={canvasRef}
-                        onMouseDown={onMouseDown}
-                        width={750}
-                        height={750}
-                        className="border border-black rounded-md"
-                    />
-                </div>
-                <div>
-                    <button type='button' className='p-2 rounded-md border border-black' onClick={clear}>
-                        Clear canvas
-                    </button>
-                </div>
+            <div className="w-full flex justify-center items-center">
+                <canvas
+                    ref={canvasRef}
+                    onMouseDown={onMouseDown}
+                    width={750}
+                    height={750}
+                    className="border border-black rounded-md"
+                />
+            </div>
+            <div>
+                <button type='button' className='p-2 rounded-md border border-black' onClick={clear}>
+                    Clear canvas
+                </button>
             </div>
         </>
     )
