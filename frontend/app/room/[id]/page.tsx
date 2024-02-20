@@ -2,6 +2,6 @@
 
 import Canvas from "@/components/canvas"
 
-export default function Draw() {
+export default function Room() {
     return Canvas()
 }
