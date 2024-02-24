@@ -2,7 +2,7 @@ import express from 'express';
 import { z } from "zod";
 import { parseError } from './errors.js';
 import { generateRandomString } from './util.js';
-import { Game, registerGameRoom } from './game.js';
+import { Game, getGames, registerGameRoom, } from './game.js';
 
 const router = express.Router();
 
@@ -15,6 +15,11 @@ const postSchema = z.object({
     }),
 });
 
+router.get("/", async (req, res) => {
+  const games = getGames();
+  return res.json(Object.values(games).map((game) => ({ id: game.id })));
+})
+
 router.post("/", async (req, res) => {
     const parseResult = postSchema.safeParse(req.body);
     if (!parseResult.success) {
@@ -26,6 +31,8 @@ router.post("/", async (req, res) => {
         id: roomId,
         rules: { drawTime, numRounds },
         hasStarted: false,
+        players: {},
+        playerOrder: [],
     }
     registerGameRoom(game);
     return res.json(game);
