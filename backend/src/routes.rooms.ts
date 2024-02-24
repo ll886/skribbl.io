@@ -2,7 +2,7 @@ import express from 'express';
 import { z } from "zod";
 import { parseError } from './errors.js';
 import { generateRandomString } from './util.js';
-import { Game } from './game.js';
+import { Game, registerGameRoom } from './game.js';
 
 const router = express.Router();
 
@@ -27,6 +27,7 @@ router.post("/", async (req, res) => {
         rules: { drawTime, numRounds },
         hasStarted: false,
     }
+    registerGameRoom(game);
     return res.json(game);
 })
 

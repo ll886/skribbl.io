@@ -5,7 +5,7 @@ import socket from "@/app/socket";
 import React, { useEffect } from "react";
 
 function Page() {
-  const { gameId } = useParams();
+  const { roomId } = useParams();
 
   useEffect(() => {
     socket.connect();
@@ -13,7 +13,7 @@ function Page() {
     return () => {
       socket.disconnect();
     };
-  }, [gameId]);
+  }, [roomId]);
 
   return <div></div>;
 }

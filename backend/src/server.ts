@@ -1,7 +1,7 @@
 import express from "express";
 import { createServer } from 'node:http';
 import { initSocket } from './socket.js';
-import gamesRouter from './routes.games.js';
+import roomsRouter from './routes.rooms.js';
 
 // init app
 const port = 3001
@@ -13,7 +13,7 @@ initSocket(server);
 app.use(express.json());
 
 // app routes
-app.use("/api/games", gamesRouter);
+app.use("/api/rooms", roomsRouter);
 
 server.listen(port, () => {
   console.log(`${protocol}://${host}:${port}`);
