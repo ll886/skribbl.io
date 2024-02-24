@@ -5,6 +5,7 @@ import socket from "@/app/socket";
 import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
+import Canvas from "@/components/canvas";
 
 function Page() {
   const { roomId } = useParams();
@@ -27,7 +28,13 @@ function Page() {
     };
   }, []);
 
-  return <div></div>;
+  return (
+    <>
+      <div className="w-screen h-screen bg-white flex flex-wrap justify-center items-center">
+        {Canvas()}
+      </div>
+    </>
+  );
 }
 
 export default Page;
