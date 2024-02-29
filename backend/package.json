@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "setup": "rm -f database.db && sqlite3 database.db < setup.sql",
     "build": "rm -rf out && mkdir out && tsc",
     "start": "cd out && node server.js",
     "watch": "npm run build && tsc-watch --onSuccess \"npm run start\""
@@ -12,7 +13,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.18.2"
+    "argon2": "^0.40.1",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "sqlite": "^5.1.1",
+    "sqlite3": "^5.1.7"
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.6",
