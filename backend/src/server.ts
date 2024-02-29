@@ -36,10 +36,11 @@ app.post('/signup', async (req, res) => {
 
   let errors: string[] = []
 
-  let emailDatabase = (await db.get('SELECT * FROM users WHERE email = ?', [email]))
+  let emailDatabase = await db.get('SELECT * FROM users WHERE email = ?', [email])
+  console.log(emailDatabase)
   emailDatabase = emailDatabase ? emailDatabase['email'] : undefined
 
-  let usernameDatabase = (await db.get('SELECT * FROM users WHERE username = ?', [username]))
+  let usernameDatabase = await db.get('SELECT * FROM users WHERE username = ?', [username])
   usernameDatabase = usernameDatabase ? usernameDatabase['username'] : undefined
 
   if (emailDatabase === email) {
@@ -66,6 +67,33 @@ app.post('/signup', async (req, res) => {
       [email, username, passwordHash]
     )
 
+    res.sendStatus(200)
+  }
+})
+
+app.post("/login", async (req, res) => {
+  const body = req.body
+
+  const email: string = body.email
+  const password: string = body.password
+
+  let errors: string[] = []
+
+  let user = await db.get('SELECT * FROM users WHERE email = ?', [email])
+
+  if (!user) {
+    errors.push("Email is invalid")
+  }
+
+  if (! await argon2.verify(user.password, password)) {
+    errors.push("Password is invalid")
+  }
+
+  if (errors.length > 0) {
+    res.status(400).send({
+      errors: errors
+    })
+  } else {
     res.sendStatus(200)
   }
 })
