@@ -115,6 +115,18 @@ app.post("/login", async (req, res) => {
   }
 })
 
+app.post("/logout", (req, res) => {
+  const cookies = req.cookies
+
+  if (cookies.token === tokenStorage.token) {
+    delete tokenStorage["login"]
+    delete tokenStorage["user_id"]
+    return res.clearCookie("login", cookieOptions).send()
+  }
+
+  return res.send()
+})
+
 app.listen(port, () => {
   console.log(`${protocol}://${host}:${port}`);
 })
