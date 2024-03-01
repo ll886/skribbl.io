@@ -4,9 +4,12 @@ import { Button, Container, List, ListItem, TextField, Typography } from "@mui/m
 import { FormEvent, useState } from "react"
 import { useRouter } from "next/navigation"
 import { home } from "@/links/links"
+import { loggedinRedirectHome } from "@/util/loggedin"
 
 export default function Login() {
     const router = useRouter()
+
+    loggedinRedirectHome(router)
 
     const [email, setEmail] = useState<string>('')
     const [password, setPassword] = useState<string>('')
@@ -34,6 +37,8 @@ export default function Login() {
                 body: JSON.stringify(data)
             }
         ).then(async (res) => {
+            console.log(res.body)
+
             if (res.status === 200) {
                 router.replace(home)
                 return

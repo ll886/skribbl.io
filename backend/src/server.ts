@@ -41,6 +41,14 @@ app.get('/', (req, res) => {
   res.send('Hello World!')
 })
 
+app.get('/loggedin', (req, res) => {
+  if (!tokenStorage["login"]) {
+    res.send(false)
+  }
+
+  res.send(true)
+})
+
 app.post('/signup', async (req, res) => {
   const body = req.body
 

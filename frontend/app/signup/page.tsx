@@ -4,9 +4,12 @@ import { Button, Container, List, ListItem, TextField, Typography } from "@mui/m
 import { FormEvent, useState } from "react"
 import { useRouter } from "next/navigation"
 import { login } from "@/links/links"
+import { loggedinRedirectHome } from "@/util/loggedin"
 
 export default function Signup() {
     const router = useRouter()
+
+    loggedinRedirectHome(router)
 
     const [email, setEmail] = useState<string>('')
     const [username, setUsername] = useState<string>('')
