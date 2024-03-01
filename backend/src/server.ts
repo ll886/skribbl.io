@@ -1,16 +1,28 @@
-import express from "express";
+import express, { CookieOptions } from "express";
 import sqlite3 from "sqlite3";
 import { open } from "sqlite";
 import * as url from "url";
 import cors from "cors";
 import * as argon2 from "argon2";
+import cookieParser from "cookie-parser";
+import crypto from "crypto";
+
 const app = express()
 app.use(express.json());
-app.use(cors())
+app.use(cors());
+app.use(cookieParser());
 
 const port = 3000
 const host = "localhost";
 const protocol = "http";
+
+let tokenStorage: { [key: string]: string } = {};
+
+let cookieOptions: CookieOptions = {
+  httpOnly: true, // don't allow JS to touch cookies
+  secure: true, // only send cookies over HTTPS
+  sameSite: "strict", // https://web.dev/articles/samesite-cookies-explained
+};
 
 let __dirname = url.fileURLToPath(new URL("..", import.meta.url));
 let dbfile = `${__dirname}database.db`;
@@ -20,6 +32,9 @@ let db = await open({
 });
 await db.get("PRAGMA foreign_keys = ON");
 
+function makeToken() {
+  return crypto.randomBytes(32).toString("hex");
+}
 
 app.get('/', (req, res) => {
   // TODO remove placeholder route
@@ -37,7 +52,6 @@ app.post('/signup', async (req, res) => {
   let errors: string[] = []
 
   let emailDatabase = await db.get('SELECT * FROM users WHERE email = ?', [email])
-  console.log(emailDatabase)
   emailDatabase = emailDatabase ? emailDatabase['email'] : undefined
 
   let usernameDatabase = await db.get('SELECT * FROM users WHERE username = ?', [username])
@@ -83,9 +97,7 @@ app.post("/login", async (req, res) => {
 
   if (!user) {
     errors.push("Email is invalid")
-  }
-
-  if (! await argon2.verify(user.password, password)) {
+  } else if (!(await argon2.verify(user.password, password))) {
     errors.push("Password is invalid")
   }
 
@@ -94,7 +106,12 @@ app.post("/login", async (req, res) => {
       errors: errors
     })
   } else {
-    res.sendStatus(200)
+    const loginToken = makeToken()
+
+    tokenStorage["login"] = loginToken
+    tokenStorage["user_id"] = user.id
+
+    return res.cookie("login", loginToken, cookieOptions).json()
   }
 })
 

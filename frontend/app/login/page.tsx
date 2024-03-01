@@ -3,7 +3,7 @@
 import { Button, Container, List, ListItem, TextField, Typography } from "@mui/material"
 import { FormEvent, useState } from "react"
 import { useRouter } from "next/navigation"
-import { login } from "@/links/links"
+import { home } from "@/links/links"
 
 export default function Login() {
     const router = useRouter()
@@ -35,7 +35,7 @@ export default function Login() {
             }
         ).then(async (res) => {
             if (res.status === 200) {
-                router.replace(login)
+                router.replace(home)
                 return
             }
 
