@@ -28,7 +28,7 @@ export default function Login() {
         }
 
         const response = await fetch(
-            'http://localhost:3000/login', 
+            'http://localhost:3000/login',
             {
                 method: 'POST',
                 headers: {
@@ -37,8 +37,6 @@ export default function Login() {
                 body: JSON.stringify(data)
             }
         ).then(async (res) => {
-            console.log(res.body)
-
             if (res.status === 200) {
                 router.replace(home)
                 return
