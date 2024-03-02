@@ -1,20 +1,33 @@
 import express, { CookieOptions } from "express";
+import cors from "cors";
+import { createServer } from 'node:http';
+import { initSocket } from './socket.js';
+import roomsRouter from './routes.rooms.js';
 import sqlite3 from "sqlite3";
 import { open } from "sqlite";
 import * as url from "url";
-import cors from "cors";
 import * as argon2 from "argon2";
 import cookieParser from "cookie-parser";
 import crypto from "crypto";
 
-const app = express()
-app.use(express.json());
-app.use(cors());
-app.use(cookieParser());
+// init app
+const port = 3001
 
-const port = 3000
 const host = "localhost";
 const protocol = "http";
+const app = express();
+const server = createServer(app);
+initSocket(server);
+app.use(express.json());
+app.use(cors({
+  origin: [
+    "http://localhost:3000",
+  ],
+}))
+app.use(cookieParser());
+
+// app routes
+app.use("/api/rooms", roomsRouter);
 
 let tokenStorage: { [key: string]: string } = {};
 
@@ -137,4 +150,4 @@ app.post("/logout", (req, res) => {
 
 app.listen(port, () => {
   console.log(`${protocol}://${host}:${port}`);
-})
+});
