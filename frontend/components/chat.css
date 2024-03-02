@@ -1,0 +1,30 @@
+.chat-box {
+  height: 200px;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  padding: 10px;
+}
+
+.message {
+  margin-bottom: 5px;
+}
+
+.text-box {
+  display: flex;
+  margin-top: 10px;
+  border: 1px solid #ccc;
+}
+
+input {
+  flex: 1;
+  padding: 5px;
+  margin-right: 10px;
+}
+
+.character-count {
+  margin-right: 10px;
+}
+
+button {
+  padding: 5px;
+}
