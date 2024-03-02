@@ -1,17 +1,18 @@
 import express from "express";
-const app = express()
-app.use(express.json());
+import { createServer } from 'node:http';
+import { initSocket } from './socket.js';
 
-const port = 3000
+// init app
+const port = 3001
 const host = "localhost";
 const protocol = "http";
+const app = express();
+const server = createServer(app);
+initSocket(server);
+app.use(express.json());
 
+// app routes
 
-app.get('/', (req, res) => {
-  // TODO remove placeholder route
-  res.send('Hello World!')
-})
-
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`${protocol}://${host}:${port}`);
-})
+});
