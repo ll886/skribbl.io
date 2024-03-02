@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import express, { CookieOptions } from "express";
 import sqlite3 from "sqlite3";
 import { open } from "sqlite";
@@ -11,11 +12,29 @@ const app = express()
 app.use(express.json());
 app.use(cors());
 app.use(cookieParser());
+=======
+import express from "express";
+import cors from "cors";
+import { createServer } from 'node:http';
+import { initSocket } from './socket.js';
+import roomsRouter from './routes.rooms.js';
+>>>>>>> abdb29e2ca5c1ef88efdda4659afbd4562929b2d
 
-const port = 3000
+// init app
+const port = 3001
 const host = "localhost";
 const protocol = "http";
+const app = express();
+const server = createServer(app);
+initSocket(server);
+app.use(express.json());
+app.use(cors({
+  origin: [
+    "http://localhost:3000",
+  ],
+}))
 
+<<<<<<< HEAD
 let tokenStorage: { [key: string]: string } = {};
 
 let cookieOptions: CookieOptions = {
@@ -136,5 +155,11 @@ app.post("/logout", (req, res) => {
 })
 
 app.listen(port, () => {
+=======
+// app routes
+app.use("/api/rooms", roomsRouter);
+
+server.listen(port, () => {
+>>>>>>> abdb29e2ca5c1ef88efdda4659afbd4562929b2d
   console.log(`${protocol}://${host}:${port}`);
-})
+});

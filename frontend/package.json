@@ -9,12 +9,20 @@
     "lint": "next lint"
   },
   "dependencies": {
+<<<<<<< HEAD
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.0",
     "@mui/material": "^5.15.11",
     "next": "14.1.0",
     "react": "^18",
     "react-dom": "^18"
+=======
+    "js-cookie": "^3.0.5",
+    "next": "14.1.0",
+    "react": "^18",
+    "react-dom": "^18",
+    "socket.io-client": "^4.7.4"
+>>>>>>> abdb29e2ca5c1ef88efdda4659afbd4562929b2d
   },
   "devDependencies": {
     "@types/node": "^20",
