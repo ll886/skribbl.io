@@ -3,13 +3,15 @@
 import React, { ReactElement, useEffect, useState } from 'react';
 import { AppBar, Button, Toolbar, Link } from '@mui/material';
 import { home, login, signup } from '@/links/links';
+import { serverUrl } from '@/app/config';
+
 
 export default function Navbar() {
     const [authButtons, setAuthButtons] = useState<ReactElement>()
 
     useEffect(() => {
         const loggedin = async () => {
-            await fetch(`http://localhost:3000/loggedin`).then(async (res) => {
+            await fetch(`${serverUrl}/loggedin`).then(async (res) => {
                 const json = await res.json()
                 return json
             }).then((json) => {
@@ -29,10 +31,10 @@ export default function Navbar() {
         }
     
         loggedin()
-    }, [authButtons])
+    }, [])
 
     const logout = async () => {
-        await fetch('http://localhost:3000/logout', {
+        await fetch(`${serverUrl}/logout`, {
             method: 'POST',
             headers: {
                 "Content-Type": 'application/json',

@@ -5,6 +5,7 @@ import { FormEvent, useState } from "react"
 import { useRouter } from "next/navigation"
 import { home } from "@/links/links"
 import { loggedinRedirectHome } from "@/util/loggedin"
+import { serverUrl } from "../config"
 
 export default function Login() {
     const router = useRouter()
@@ -28,12 +29,13 @@ export default function Login() {
         }
 
         const response = await fetch(
-            'http://localhost:3000/login',
+            `${serverUrl}/login`,
             {
                 method: 'POST',
                 headers: {
                     "Content-Type": 'application/json',
                 },
+                credentials: 'include',
                 body: JSON.stringify(data)
             }
         ).then(async (res) => {

@@ -13,19 +13,14 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-<<<<<<< HEAD
     "argon2": "^0.40.1",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "express": "^4.18.2",
-    "sqlite": "^5.1.1",
-    "sqlite3": "^5.1.7"
-=======
-    "cors": "^2.8.5",
-    "express": "^4.18.2",
     "socket.io": "^4.7.4",
+    "sqlite": "^5.1.1",
+    "sqlite3": "^5.1.7",
     "zod": "^3.22.4"
->>>>>>> abdb29e2ca5c1ef88efdda4659afbd4562929b2d
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.6",

@@ -5,6 +5,7 @@ import { FormEvent, useState } from "react"
 import { useRouter } from "next/navigation"
 import { login } from "@/links/links"
 import { loggedinRedirectHome } from "@/util/loggedin"
+import { serverUrl } from "../config"
 
 export default function Signup() {
     const router = useRouter()
@@ -32,7 +33,7 @@ export default function Signup() {
         }
 
         const response = await fetch(
-            'http://localhost:3000/signup', 
+            `${serverUrl}/signup`, 
             {
                 method: 'POST',
                 headers: {

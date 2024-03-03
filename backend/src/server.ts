@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import express, { CookieOptions } from "express";
 import sqlite3 from "sqlite3";
 import { open } from "sqlite";
@@ -7,18 +6,9 @@ import cors from "cors";
 import * as argon2 from "argon2";
 import cookieParser from "cookie-parser";
 import crypto from "crypto";
-
-const app = express()
-app.use(express.json());
-app.use(cors());
-app.use(cookieParser());
-=======
-import express from "express";
-import cors from "cors";
 import { createServer } from 'node:http';
 import { initSocket } from './socket.js';
 import roomsRouter from './routes.rooms.js';
->>>>>>> abdb29e2ca5c1ef88efdda4659afbd4562929b2d
 
 // init app
 const port = 3001
@@ -28,19 +18,22 @@ const app = express();
 const server = createServer(app);
 initSocket(server);
 app.use(express.json());
+app.use(cookieParser());
 app.use(cors({
   origin: [
+    "http://localhost",
     "http://localhost:3000",
   ],
+  credentials: true
 }))
 
-<<<<<<< HEAD
 let tokenStorage: { [key: string]: string } = {};
 
 let cookieOptions: CookieOptions = {
   httpOnly: true, // don't allow JS to touch cookies
   secure: true, // only send cookies over HTTPS
-  sameSite: "strict", // https://web.dev/articles/samesite-cookies-explained
+  sameSite: "lax", // https://web.dev/articles/samesite-cookies-explained
+  // domain: "localhost:3000"
 };
 
 let __dirname = url.fileURLToPath(new URL("..", import.meta.url));
@@ -55,14 +48,11 @@ function makeToken() {
   return crypto.randomBytes(32).toString("hex");
 }
 
-app.get('/', (req, res) => {
-  // TODO remove placeholder route
-  res.send('Hello World!')
-})
-
 app.get('/loggedin', (req, res) => {
-  if (!tokenStorage["login"]) {
-    res.send(false)
+  let token = req.cookies.token;
+
+  if (token === null || !tokenStorage.hasOwnProperty(token)) {
+    return res.send(false);
   }
 
   res.send(true)
@@ -134,32 +124,25 @@ app.post("/login", async (req, res) => {
     })
   } else {
     const loginToken = makeToken()
-
-    tokenStorage["login"] = loginToken
-    tokenStorage["user_id"] = user.id
-
-    return res.cookie("login", loginToken, cookieOptions).json()
+    tokenStorage[loginToken] = user.id
+    return res.cookie("token", loginToken, cookieOptions).json()
   }
 })
 
 app.post("/logout", (req, res) => {
   const cookies = req.cookies
 
-  if (cookies.token === tokenStorage.token) {
-    delete tokenStorage["login"]
-    delete tokenStorage["user_id"]
-    return res.clearCookie("login", cookieOptions).send()
+  if (cookies.token !== null && !tokenStorage.hasOwnProperty(cookies.token)) {
+    delete tokenStorage[cookies.token]
+    return res.clearCookie("token", cookieOptions).send()
   }
 
   return res.send()
 })
 
-app.listen(port, () => {
-=======
 // app routes
 app.use("/api/rooms", roomsRouter);
 
 server.listen(port, () => {
->>>>>>> abdb29e2ca5c1ef88efdda4659afbd4562929b2d
   console.log(`${protocol}://${host}:${port}`);
 });
