@@ -12,6 +12,7 @@ import roomsRouter from './routes.rooms.js';
 
 // init app
 const port = 3001
+
 const host = "localhost";
 const protocol = "http";
 const app = express();
@@ -26,6 +27,10 @@ app.use(cors({
   ],
   credentials: true
 }))
+app.use(cookieParser());
+
+// app routes
+app.use("/api/rooms", roomsRouter);
 
 let tokenStorage: { [key: string]: string } = {};
 
@@ -139,9 +144,6 @@ app.post("/logout", (req, res) => {
 
   return res.send()
 })
-
-// app routes
-app.use("/api/rooms", roomsRouter);
 
 server.listen(port, () => {
   console.log(`${protocol}://${host}:${port}`);
