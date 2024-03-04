@@ -3,6 +3,7 @@
 import React, { useState, useEffect, ChangeEvent } from "react";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
+import Navbar from "@/components/navbar";
 
 function Home() {
   const router = useRouter();
@@ -30,32 +31,33 @@ function Home() {
   }
 
   return (
-    <div>
-      <h1>skribbl.io</h1>
-      <div>{message}</div>
-      <label>
-        Player Name
-        <input type="text" value={guestId} onChange={handleInputChange} />
-      </label>
+    <>
+      <Navbar />
       <div>
-        <button
-          onClick={() => {
-            router.push(`/rooms/random`);
-          }}
-        >
-          Play!
-        </button>
+        <h1>skribbl.io</h1>
+        <label>
+          Player Name
+          <input type="text" value={guestId} onChange={handleInputChange} />
+        </label>
+
+        <div>
+          <button
+            onClick={() => {
+              router.push(`/rooms/random`);
+            }}
+          >
+            Play!
+          </button>
+          <button
+            onClick={() => {
+              router.push(`/MakeRoom`);
+            }}
+          >
+            Create Private Room
+          </button>
+        </div>
       </div>
-      <div>
-        <button
-          onClick={() => {
-            router.push(`/MakeRoom`);
-          }}
-        >
-          Create Private Room
-        </button>
-      </div>
-    </div>
+    </>
   );
 }
 
