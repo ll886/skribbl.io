@@ -54,6 +54,10 @@ function addPlayerToGame(gameId: string, player: Player) {
     throw new Error("invalid gameId");
   }
 
+  if (player.id === undefined) {
+    throw new Error("player does not have an id");
+  }
+
   if (games[gameId].players.hasOwnProperty(player.id)) {
     throw new Error("playerId already registered in game");
   }
