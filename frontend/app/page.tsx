@@ -48,15 +48,6 @@ function Home() {
           Draw
         </button>
       </div>
-      <div>
-      <button
-          onClick={() => {
-            router.push(`/MakeRoom`);
-          }}
-        >
-          Create Private Room
-        </button>
-      </div>
     </div>
   );
 }
