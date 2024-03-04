@@ -35,6 +35,7 @@ function Home() {
       <Navbar />
       <div>
         <h1>skribbl.io</h1>
+        <div>{message}</div>
         <label>
           Player Name
           <input type="text" value={guestId} onChange={handleInputChange} />
