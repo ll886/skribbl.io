@@ -7,23 +7,22 @@ import { serverUrl } from '@/app/config';
 
 
 export default function Navbar() {
-    const [authButtons, setAuthButtons] = useState<ReactElement>()
+    const [authButtons, setAuthButtons] = useState<ReactElement>(
+        <>
+            <Button color="inherit" href={login}>Login</Button>
+            <Button color="inherit" href={signup}>Sign Up</Button>
+        </>
+    )
 
     useEffect(() => {
         const loggedin = async () => {
-            await fetch(`${serverUrl}/loggedin`).then(async (res) => {
+            await fetch(`${serverUrl}/loggedin`, {
+                credentials: "include",
+            }).then(async (res) => {
                 const json = await res.json()
-                return json
-            }).then((json) => {
+                
                 if (json) {
                     setAuthButtons(<Button color="inherit" onClick={logout}>Logout</Button>)
-                } else {
-                    setAuthButtons(
-                        <>
-                            <Button color="inherit" href={login}>Login</Button>
-                            <Button color="inherit" href={signup}>Sign Up</Button>
-                        </>
-                    )
                 }
             }).catch((err) => {
                 console.error(err)
@@ -39,8 +38,7 @@ export default function Navbar() {
             headers: {
                 "Content-Type": 'application/json',
             },
-        }).then(async () => {
-            window.location.reload();
+            credentials: 'include',
         }).catch((err) => {
             console.error(err)
         })

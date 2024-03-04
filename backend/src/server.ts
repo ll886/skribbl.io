@@ -25,9 +25,9 @@ app.use(cors({
     "http://localhost",
     "http://localhost:3000",
   ],
-  credentials: true
+  credentials: true,
+  optionsSuccessStatus: 200,
 }))
-app.use(cookieParser());
 
 // app routes
 app.use("/api/rooms", roomsRouter);
@@ -53,7 +53,7 @@ function makeToken() {
 }
 
 app.get('/loggedin', (req, res) => {
-  let token = req.cookies.token;
+  const token = req.cookies.token;
 
   if (token === null || !tokenStorage.hasOwnProperty(token)) {
     return res.send(false);
@@ -134,14 +134,12 @@ app.post("/login", async (req, res) => {
 })
 
 app.post("/logout", (req, res) => {
-  const cookies = req.cookies
+  const token = req.cookies.token
 
-  if (cookies.token !== null && !tokenStorage.hasOwnProperty(cookies.token)) {
-    delete tokenStorage[cookies.token]
-    return res.clearCookie("token", cookieOptions).send()
+  if (token !== null && tokenStorage.hasOwnProperty(token)) {
+    delete tokenStorage[token]
+    res.clearCookie("token", cookieOptions).json()
   }
-
-  return res.send()
 })
 
 server.listen(port, () => {
