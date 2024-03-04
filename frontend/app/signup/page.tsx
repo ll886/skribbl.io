@@ -1,7 +1,7 @@
 'use client'
 
 import { Button, Container, List, ListItem, TextField, Typography } from "@mui/material"
-import { FormEvent, useState } from "react"
+import { FormEvent, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { login } from "@/links/links"
 import { loggedinRedirectHome } from "@/util/loggedin"
@@ -10,7 +10,9 @@ import { serverUrl } from "../config"
 export default function Signup() {
     const router = useRouter()
 
-    loggedinRedirectHome(router)
+    useEffect(() => {
+        loggedinRedirectHome(router)
+    }, [])
 
     const [email, setEmail] = useState<string>('')
     const [username, setUsername] = useState<string>('')
