@@ -5,13 +5,13 @@
 
         // enable top-level await and import/export syntax
         "target": "es2017",
-        "moduleResolution": "node16",
+        "moduleResolution": "node",
         "module": "es2022",
 
         // enable type checking
         "strict": true,
 
         // to make jest happy
-        "esModuleInterop": true
+        "esModuleInterop": true,
     }
 }

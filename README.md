@@ -31,3 +31,5 @@ Run the server locally:
 ```
 npm run watch
 ```
+
+Visit http://localhost:3000
