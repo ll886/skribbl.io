@@ -35,10 +35,9 @@ app.use("/api/rooms", roomsRouter);
 let tokenStorage: { [key: string]: string } = {};
 
 let cookieOptions: CookieOptions = {
-  httpOnly: true, // don't allow JS to touch cookies
-  secure: true, // only send cookies over HTTPS
-  sameSite: "lax", // https://web.dev/articles/samesite-cookies-explained
-  // domain: "localhost:3000"
+  httpOnly: true,
+  secure: true,
+  sameSite: 'lax',
 };
 
 let __dirname = url.fileURLToPath(new URL("..", import.meta.url));
