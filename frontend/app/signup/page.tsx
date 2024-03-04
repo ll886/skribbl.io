@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import { login } from "@/links/links"
 import { loggedinRedirectHome } from "@/util/loggedin"
 import { serverUrl } from "../config"
+import Navbar from "@/components/navbar"
 
 export default function Signup() {
     const router = useRouter()
@@ -60,77 +61,80 @@ export default function Signup() {
     }
 
     return (
-        <Container maxWidth="xs">
-            <Typography variant="h4" align="center" gutterBottom>
-                Sign Up
-            </Typography>
-            <form onSubmit={handleSubmit} onChange={onChange}>
-                <TextField
-                    label="Email"
-                    type="email"
-                    name="email"
-                    value={email}
-                    onChange={(e) => {
-                        setEmail(e.target.value)
-                    }}
-                    fullWidth
-                    required
-                    margin="normal"
-                />
-                <TextField
-                    label="Username"
-                    name="username"
-                    value={username}
-                    onChange={(e) => {
-                        setUsername(e.target.value)
-                    }}
-                    fullWidth
-                    required
-                    margin="normal"
-                />
-                <TextField
-                    label="Password"
-                    type="password"
-                    name="password"
-                    value={password}
-                    onChange={(e) => {
-                        setPassword(e.target.value)
-                    }}
-                    fullWidth
-                    required
-                    margin="normal"
-                />
-                <TextField
-                    label="Confirm Password"
-                    type="password"
-                    name="confirmPassword"
-                    value={passwordConfirmation}
-                    onChange={(e) => {
-                        setPasswordConfirmation(e.target.value)
-                    }}
-                    fullWidth
-                    required
-                    margin="normal"
-                />
-
-                <List>
-                    {
-                        errors.map((e, i) => 
-                            <ListItem key={i} sx={{ color: "red" }}>
-                                {e}
-                            </ListItem>
-                        )
-                    }
-                </List>
-
-                <Button
-                    variant="outlined"
-                    type="submit"
-                    fullWidth
-                >
+        <>
+            <Navbar />
+            <Container maxWidth="xs">
+                <Typography variant="h4" align="center" gutterBottom>
                     Sign Up
-                </Button>
-            </form>
-        </Container>
+                </Typography>
+                <form onSubmit={handleSubmit} onChange={onChange}>
+                    <TextField
+                        label="Email"
+                        type="email"
+                        name="email"
+                        value={email}
+                        onChange={(e) => {
+                            setEmail(e.target.value)
+                        }}
+                        fullWidth
+                        required
+                        margin="normal"
+                    />
+                    <TextField
+                        label="Username"
+                        name="username"
+                        value={username}
+                        onChange={(e) => {
+                            setUsername(e.target.value)
+                        }}
+                        fullWidth
+                        required
+                        margin="normal"
+                    />
+                    <TextField
+                        label="Password"
+                        type="password"
+                        name="password"
+                        value={password}
+                        onChange={(e) => {
+                            setPassword(e.target.value)
+                        }}
+                        fullWidth
+                        required
+                        margin="normal"
+                    />
+                    <TextField
+                        label="Confirm Password"
+                        type="password"
+                        name="confirmPassword"
+                        value={passwordConfirmation}
+                        onChange={(e) => {
+                            setPasswordConfirmation(e.target.value)
+                        }}
+                        fullWidth
+                        required
+                        margin="normal"
+                    />
+
+                    <List>
+                        {
+                            errors.map((e, i) => 
+                                <ListItem key={i} sx={{ color: "red" }}>
+                                    {e}
+                                </ListItem>
+                            )
+                        }
+                    </List>
+
+                    <Button
+                        variant="outlined"
+                        type="submit"
+                        fullWidth
+                    >
+                        Sign Up
+                    </Button>
+                </form>
+            </Container>
+        </>
     )
 }
