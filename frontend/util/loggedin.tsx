@@ -3,14 +3,15 @@ import { home } from "@/links/links"
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime"
 
 export const loggedinRedirectHome = async (router: AppRouterInstance) => {
-    await fetch(`${serverUrl}/loggedin`).then(async (res) => {
-        const json = await res.json()
-        return json
-    }).then((json) => {
-        if (json) {
-            router.replace(home)
-        }
+    const json = await fetch(`${serverUrl}/loggedin`, {
+        credentials: 'include'
+    }).then(async (res) => {
+        return res.json()
     }).catch((err) => {
         console.error(err)
     })
+
+    if (json) {
+        router.push(home)
+    }
 }

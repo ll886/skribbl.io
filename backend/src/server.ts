@@ -52,7 +52,7 @@ function makeToken() {
   return crypto.randomBytes(32).toString("hex");
 }
 
-app.get('/loggedin', (req, res) => {
+app.get('/loggedin', async (req, res) => {
   const token = req.cookies.token;
 
   if (token === null || !tokenStorage.hasOwnProperty(token)) {

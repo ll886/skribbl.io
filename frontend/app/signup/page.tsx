@@ -32,7 +32,7 @@ export default function Signup() {
             passwordConfirmation: passwordConfirmation,
         }
 
-        const response = await fetch(
+        await fetch(
             `${serverUrl}/signup`, 
             {
                 method: 'POST',

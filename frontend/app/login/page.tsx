@@ -28,7 +28,7 @@ export default function Login() {
             password: password,
         }
 
-        const response = await fetch(
+        await fetch(
             `${serverUrl}/login`,
             {
                 method: 'POST',
