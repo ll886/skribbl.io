@@ -20,7 +20,7 @@ function Page() {
     socket.on("joinGameError", () => {
       console.log("error joining room");
       console.log("room may not exist");
-      router.push("/MakeRoom");
+      router.push("/");
     });
 
     return () => {
