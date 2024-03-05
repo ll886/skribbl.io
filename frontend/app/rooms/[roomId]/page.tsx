@@ -6,7 +6,7 @@ import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Canvas from "@/components/canvas";
 import Chat from "@/components/chat";
-import { getGuestId } from "@/app/names";
+import { generateGuestIdIfNull } from "@/app/names";
 
 function Page() {
   const { roomId } = useParams();
@@ -14,9 +14,11 @@ function Page() {
 
   useEffect(() => {
     socket.connect();
+    console.log("connect socket");
+    generateGuestIdIfNull();
 
-    const guestId = getGuestId();
-    socket.emit("joinRoom", roomId, { id: guestId });
+    socket.emit("joinRoom", roomId);
+    console.log("joining room");
 
     socket.on("joinGameError", () => {
       console.log("error joining room");
@@ -25,6 +27,7 @@ function Page() {
     });
 
     return () => {
+      console.log("disconnect socket");
       socket.disconnect();
     };
   }, []);
