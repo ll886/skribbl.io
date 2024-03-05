@@ -8,11 +8,14 @@ import Navbar from "@/components/navbar";
 function Home() {
   const router = useRouter();
   const [guestId, setGuestId] = useState("");
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
     const guestId = Cookies.get("guestId");
     if (guestId) {
       setGuestId(guestId);
+    } else {
+      setMessage("Enter a name to play!");
     }
   }, []);
 
@@ -20,6 +23,11 @@ function Home() {
     const newValue = event.target.value;
     setGuestId(newValue);
     Cookies.set("guestId", newValue);
+    if (!newValue) {
+      setMessage("Enter a name to play!");
+    } else {
+      setMessage("");
+    }
   }
 
   return (
@@ -27,6 +35,7 @@ function Home() {
       <Navbar />
       <div>
         <h1>skribbl.io</h1>
+        <div>{message}</div>
         <label>
           Player Name
           <input type="text" value={guestId} onChange={handleInputChange} />
@@ -42,7 +51,7 @@ function Home() {
           </button>
           <button
             onClick={() => {
-              router.push(`/rooms/create`);
+              router.push(`/MakeRoom`);
             }}
           >
             Create Private Room

@@ -1,9 +1,12 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import "./MakeRoom.css";
 import { serverUrl } from "../config";
+import { useRouter } from "next/navigation";
 
 const MakeRoom: React.FC = () => {
+    const router = useRouter();
+
     const [drawTime, setDrawTime] = useState<number>(20);
     const [numRounds, setNumRounds] = useState<number>(2);
 
@@ -31,7 +34,8 @@ const MakeRoom: React.FC = () => {
             if (!response.ok) {
                 throw new Error("Failed to create room");
             }
-            console.log("Room created successfully");
+            const data = await response.json();
+            router.push(`/rooms/${data.id}`);
         } catch (error) {
             console.error("Error creating room. ", error);
         }

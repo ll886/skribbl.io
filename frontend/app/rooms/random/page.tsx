@@ -17,7 +17,7 @@ const Random = () => {
           const randomGame = games[Math.floor(Math.random() * games.length)];
           router.push(`/rooms/${randomGame.id}`);
         } else {
-          router.push("/rooms/create");
+          router.push("/MakeRoom");
         }
       } catch (error) {
         console.error(error);
