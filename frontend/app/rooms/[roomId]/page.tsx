@@ -14,16 +14,19 @@ function Page() {
 
   useEffect(() => {
     socket.connect();
-    console.log("connect socket");
+    console.log("connecting socket...");
     generateGuestIdIfNull();
 
-    socket.emit("joinRoom", roomId);
-    console.log("joining room");
+    socket.on("connect", () => {
+      console.log("socket connected");
+      socket.emit("joinRoom", roomId);
+      console.log("joining room");
 
-    socket.on("joinGameError", () => {
-      console.log("error joining room");
-      console.log("room may not exist");
-      router.push("/");
+      socket.on("joinGameError", () => {
+        console.log("error joining room");
+        console.log("room may not exist");
+        router.push("/");
+      });
     });
 
     return () => {
