@@ -43,16 +43,12 @@ function initSocket(server: HttpServer) {
       if (cookies.hasOwnProperty("guestId")) {
         const player = { id: cookies.guestId };
         socket.data.player = player;
-        console.log("set guestPlayer");
       }
       if (cookies.hasOwnProperty("token")) {
         const user = await getUserByToken(cookies.token);
         if (user !== undefined) {
           const player = { id: user.username };
           socket.data.player = player;
-          console.log("set logged in player");
-        } else {
-          console.log("invalid token");
         }
       }
     }
@@ -64,6 +60,7 @@ function initSocket(server: HttpServer) {
         socket.data.gameId = gameId;
         socket.join(gameId);
         const gameState = getGameState(gameId);
+        io.to(gameId).emit("sendMessage", `${player.id} has joined the game`);
         io.to(gameId).emit("updateGameState", gameState);
       } catch (e) {
         console.log(e);
@@ -81,6 +78,7 @@ function initSocket(server: HttpServer) {
         try {
           removePlayerFromGame(gameId, player);
           const gameState = getGameState(gameId);
+          io.to(gameId).emit("sendMessage", `${player.id} has left the game`);
           io.to(gameId).emit("updateGameState", gameState);
         } catch (e) {
           console.log(e);
