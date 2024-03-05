@@ -4,8 +4,9 @@ import { useParams } from "next/navigation";
 import socket from "@/app/socket";
 import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Cookies from "js-cookie";
 import Canvas from "@/components/canvas";
+import Chat from "@/components/chat";
+import { getGuestId } from "@/app/names";
 
 function Page() {
   const { roomId } = useParams();
@@ -14,7 +15,7 @@ function Page() {
   useEffect(() => {
     socket.connect();
 
-    const guestId = Cookies.get("guestId");
+    const guestId = getGuestId();
     socket.emit("joinRoom", roomId, { id: guestId });
 
     socket.on("joinGameError", () => {
@@ -29,11 +30,12 @@ function Page() {
   }, []);
 
   return (
-    <>
-      <div className="w-screen h-screen bg-white flex flex-wrap justify-center items-center">
-        {Canvas()}
+    <div className="flex h-screen bg-white">
+      <div className="flex-grow p-4">{Canvas()}</div>
+      <div className="w-1/4 p-4">
+        <Chat socket={socket} />
       </div>
-    </>
+    </div>
   );
 }
 

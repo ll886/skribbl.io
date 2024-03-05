@@ -11,10 +11,12 @@ import {
 interface ServerToClientEvents {
   updateGameState: (gameState: Game) => void;
   joinGameError: () => void;
+  sendMessage: (message: string) => void;
 }
 
 interface ClientToServerEvents {
   joinRoom: (gameId: string, player: Player) => void;
+  sendMessage: (message: string) => void;
 }
 
 interface InterServerEvents {}
@@ -63,6 +65,16 @@ function initSocket(server: HttpServer) {
         } catch (e) {
           console.log(e);
         }
+      }
+    });
+
+    socket.on("sendMessage", (message) => {
+      const gameId = socket.data.gameId;
+      const player = socket.data.player;
+      if (gameId !== null && player !== null) {
+        io.to(gameId).emit("sendMessage", `${player.id}: ${message}`);
+      } else {
+        console.log("error sending message due to missing info");
       }
     });
   });
