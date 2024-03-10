@@ -155,14 +155,23 @@ async function startRound(
     game.currentArtistId = playerId;
     sendMessage(`${game.currentArtistId} is choosing a word`);
 
-    // TODO wait 15 seconds for player to choose word. if not chosen, randomly choose
+    // TODO give 3 word options for player to choose within 15 seconds
+    // TODO end wait time early if word is chosen by player
+    // TODO randomly choose option if word not chosen by player
     for (let timeRemaining = 15; timeRemaining >= 0; timeRemaining--) {
       tickTime(timeRemaining);
       await wait(1);
     }
   
-    // TODO wait <rules.DrawTime> seconds to guess word
+    // TODO wait <rules.drawTime> seconds to guess word
+    // TODO end wait time early if every player guesses correctly
     for (let timeRemaining = game.rules.drawTime; timeRemaining >= 0; timeRemaining--) {
+      tickTime(timeRemaining);
+      await wait(1);
+    }
+
+    // TODO wait 5 seconds to show results (points earned per player)
+    for (let timeRemaining = 5; timeRemaining >= 0; timeRemaining--) {
       tickTime(timeRemaining);
       await wait(1);
     }
