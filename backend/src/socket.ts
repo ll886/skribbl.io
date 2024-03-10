@@ -16,7 +16,7 @@ interface ServerToClientEvents {
   joinGameError: () => void;
   sendMessage: (message: string) => void;
   currentUser: (data: { playerId: string }) => void;
-  timerTick: (message: number) => void; // TOOD update client to listen to this
+  timerTick: (message: number) => void;
 }
 
 interface ClientToServerEvents {
