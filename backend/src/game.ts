@@ -118,7 +118,8 @@ function getGameState(gameId: string): Game {
 function startGame(
   gameId: string,
   tickTime: (time: number) => void,
-  sendMessage: (message: string) => void
+  sendMessage: (message: string) => void,
+  updateGameState: (gameState: Game) => void,
 ): undefined {
   if (!games.hasOwnProperty(gameId)) {
     gameLog(gameId, "game room no longer exists, exiting game flow");
@@ -127,23 +128,25 @@ function startGame(
 
   if (games[gameId].playerOrder.length > 1) {
     // recursively start rounds
-    startRound(gameId, tickTime, sendMessage);
+    startRound(gameId, tickTime, sendMessage, updateGameState);
   } else {
     sendMessage("You need at least 2 players to start the game!");
   }
 }
 
-function startRound(
+async function startRound(
   gameId: string,
   tickTime: (message: number) => void,
-  sendMessage: (message: string) => void
-): undefined {
+  sendMessage: (message: string) => void,
+  updateGameState: (gameState: Game) => void,
+): Promise<undefined> {
   if (!games.hasOwnProperty(gameId)) {
     gameLog(gameId, "game room no longer exists, exiting game flow");
     return;
   }
   let game = games[gameId];
   game.hasStarted = true;
+  updateGameState(game);
   sendMessage(`starting round ${game.currentRound}`);
 
   const playerOrder = [...game.playerOrder];
@@ -153,15 +156,28 @@ function startRound(
     sendMessage(`${game.currentArtistId} is choosing a word`);
 
     // TODO wait 15 seconds for player to choose word. if not chosen, randomly choose
+    for (let timeRemaining = 15; timeRemaining >= 0; timeRemaining--) {
+      tickTime(timeRemaining);
+      await wait(1);
+    }
+  
     // TODO wait <rules.DrawTime> seconds to guess word
+    for (let timeRemaining = game.rules.drawTime; timeRemaining >= 0; timeRemaining--) {
+      tickTime(timeRemaining);
+      await wait(1);
+    }
   }
 
   if (game.currentRound < game.rules.numRounds) {
     game.currentRound++;
-    startRound(gameId, tickTime, sendMessage);
+    startRound(gameId, tickTime, sendMessage, updateGameState);
   } else {
     // TODO end game logic
   }
+}
+
+function wait(seconds: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, seconds * 1000));
 }
 
 export {

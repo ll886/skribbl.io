@@ -17,7 +17,6 @@ interface ServerToClientEvents {
   sendMessage: (message: string) => void;
   currentUser: (data: { playerId: string }) => void;
   timerTick: (message: number) => void; // TOOD update client to listen to this
-
 }
 
 interface ClientToServerEvents {
@@ -85,10 +84,13 @@ function initSocket(server: HttpServer) {
           (time) => {
             io.to(gameId).emit("timerTick", time);
           },
-           (message) => {
+          (message) => {
             io.to(gameId).emit("sendMessage", message);
           },
-          );
+          (gameState) => {
+            io.to(gameId).emit("updateGameState", gameState);
+          },
+        );
       } catch (error) {
         console.error("Error starting game:", error);
       }
@@ -100,6 +102,7 @@ function initSocket(server: HttpServer) {
       const player = socket.data.player;
       if (gameId !== null && player !== null) {
         console.log("attempt to remove player");
+        socket.leave(gameId);
         try {
           removePlayerFromGame(gameId, player);
           const gameState = getGameState(gameId);

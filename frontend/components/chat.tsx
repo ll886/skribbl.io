@@ -1,9 +1,16 @@
-import { useState, useEffect, ChangeEvent, KeyboardEvent } from "react";
+import { useState, useEffect, ChangeEvent, KeyboardEvent, useRef, useLayoutEffect } from "react";
 import "./chat.css";
 
 export default function Chat({ socket }) {
   const [messages, setMessages] = useState<string[]>([]);
   const [textBoxVal, setTextBoxVal] = useState<string>("");
+  const chatBoxRef = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    if (chatBoxRef.current) {
+      chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
+    }
+  }, [messages]);
 
   useEffect(() => {
     socket.on("sendMessage", (message: string) => {
@@ -31,7 +38,7 @@ export default function Chat({ socket }) {
 
   return (
     <div>
-      <div className="chat-box">
+      <div ref={chatBoxRef} className="chat-box">
         {messages.map((message, index) => (
           <div key={index} className="message">
             {message}
