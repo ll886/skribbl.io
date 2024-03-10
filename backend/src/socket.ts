@@ -65,9 +65,9 @@ function initSocket(server: HttpServer) {
         socket.join(gameId);
         const gameState = getGameState(gameId);
         io.to(socket.id).emit("currentUser", { playerId: player.id });
-        io.to(gameId).emit("sendMessage", `${player.id} has joined the game`);
+        io.to(gameId).emit("sendMessage", `${player.id} joined the room!`);
         if (gameState.hostPlayerId === player.id) {
-          io.to(gameId).emit("sendMessage", `${player.id} is the host`);
+          io.to(gameId).emit("sendMessage", `${player.id} is the room owner!`);
         }
         io.to(gameId).emit("updateGameState", gameState);
       } catch (e) {
@@ -104,13 +104,16 @@ function initSocket(server: HttpServer) {
         console.log("attempt to remove player");
         socket.leave(gameId);
         try {
+          const priorHostPlayerId = getGameState(gameId).hostPlayerId;
           removePlayerFromGame(gameId, player);
           const gameState = getGameState(gameId);
-          io.to(gameId).emit("sendMessage", `${player.id} has left the game`);
-          io.to(gameId).emit(
-            "sendMessage",
-            `${gameState.hostPlayerId} is the new host`
-          );
+          io.to(gameId).emit("sendMessage", `${player.id} left the room!`);
+          if (priorHostPlayerId !== gameState.hostPlayerId) {
+            io.to(gameId).emit(
+              "sendMessage",
+              `${gameState.hostPlayerId} is now the room owner!`
+            );
+          }
           io.to(gameId).emit("updateGameState", gameState);
         } catch (e) {
           console.log(e);
