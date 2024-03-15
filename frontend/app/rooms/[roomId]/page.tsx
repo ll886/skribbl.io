@@ -10,6 +10,7 @@ import Timer from "@/components/timer";
 import Round from "@/components/round";
 import { generateGuestIdIfNull } from "@/app/names";
 import { Game } from "@/app/interfaces";
+import Word from "@/components/word";
 
 function Page() {
   const { roomId } = useParams();
@@ -18,6 +19,7 @@ function Page() {
   const [isLinkCopied, setIsLinkCopied] = useState(false);
   const [playerId, setPlayerId] = useState(null);
   const [gameState, setGameState] = useState<Game | null>(null);
+  const [drawWordInfo, setDrawWordInfo] = useState<string>("");
 
   useEffect(() => {
     generateGuestIdIfNull();
@@ -76,6 +78,7 @@ function Page() {
 
   return (
     <div className="flex h-screen bg-white">
+      <Word socket={socket} />
       <div className="flex-grow p-4">{Canvas()}</div>
       <div className="w-1/4 p-4">
         <Round gameState={gameState} />
