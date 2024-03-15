@@ -1,4 +1,3 @@
-// TODO only use one word options
 const easyWords = [
   "pen",
   "caterpillar",
@@ -57,7 +56,6 @@ const easyWords = [
   "tail",
   "helicopter",
   "square",
-  "Mickey Mouse",
   "octopus",
   "door",
   "table",
@@ -82,7 +80,6 @@ const easyWords = [
   "bench",
   "skateboard",
   "pig",
-  "ice cream cone",
   "frog",
   "feet",
   "lollipop",
@@ -111,7 +108,6 @@ const easyWords = [
   "cookie",
   "clock",
   "ghost",
-  "spider web",
   "ocean",
   "monkey",
   "shoe",
