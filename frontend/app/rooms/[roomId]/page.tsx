@@ -22,6 +22,7 @@ function Page() {
     generateGuestIdIfNull();
     socket.connect();
     console.log("connecting socket...");
+    generateGuestIdIfNull();
 
     socket.on("connect", () => {
       console.log("socket connected");
