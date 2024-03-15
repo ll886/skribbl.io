@@ -137,7 +137,8 @@ function startGame(
   sendMessage: (message: string) => void,
   updateGameState: (gameState: Game) => void,
   sendDrawWordInfo: (word: string, artistId: string) => void,
-  sendGuessWordInfo: (wordLength: number, guesserIds: string[]) => void
+  sendGuessWordInfo: (wordLength: number, guesserIds: string[]) => void,
+  sendPlayerRoundResult: (data: { [playerId: string]: number }) => void
 ): undefined {
   if (!games.hasOwnProperty(gameId)) {
     gameLog(gameId, "game room no longer exists, exiting game flow");
@@ -152,7 +153,8 @@ function startGame(
       sendMessage,
       updateGameState,
       sendDrawWordInfo,
-      sendGuessWordInfo
+      sendGuessWordInfo,
+      sendPlayerRoundResult
     );
   } else {
     sendMessage("You need at least 2 players to start the game!");
@@ -165,7 +167,8 @@ async function startRound(
   sendMessage: (message: string) => void,
   updateGameState: (gameState: Game) => void,
   sendDrawWordInfo: (word: string, artistId: string) => void,
-  sendGuessWordInfo: (wordLength: number, guesserIds: string[]) => void
+  sendGuessWordInfo: (wordLength: number, guesserIds: string[]) => void,
+  sendPlayerRoundResult: (data: { [playerId: string]: number }) => void
 ): Promise<undefined> {
   if (!games.hasOwnProperty(gameId)) {
     gameLog(gameId, "game room no longer exists, exiting game flow");
@@ -206,14 +209,18 @@ async function startRound(
       await wait(1);
     }
 
-    // TODO wait 5 seconds to show results
-    // TODO send new event to show points earned by each player for this round
+    const playerPointsEarned = getPointsEarnedForPlayerRound(game);
+    sendPlayerRoundResult(playerPointsEarned);
+
     for (let timeRemaining = 5; timeRemaining >= 0; timeRemaining--) {
       tickTime(timeRemaining);
       await wait(1);
     }
 
-    // TODO update player points at end of player guess after we calculate points
+    for (const [playerId, points] of Object.entries(playerPointsEarned)) {
+      game.players[playerId].points = points;
+    }
+
     updateGameState(game);
   }
 
@@ -225,7 +232,8 @@ async function startRound(
       sendMessage,
       updateGameState,
       sendDrawWordInfo,
-      sendGuessWordInfo
+      sendGuessWordInfo,
+      sendPlayerRoundResult
     );
   } else {
     // TODO end game logic
@@ -246,7 +254,6 @@ function evaluateCurrentPlayerRound(game: Game, word: string) {
     currentRound.playerRounds[currentRound.playerRounds.length - 1];
 
   currentPlayerRound.playerGuesses.forEach((playerGuess) => {
-    console.log(playerGuess.guess);
     if (
       playerGuess.playerId != game.currentArtistId &&
       playerGuess.guess === word &&
@@ -255,6 +262,39 @@ function evaluateCurrentPlayerRound(game: Game, word: string) {
       currentPlayerRound.playerCorrectGuessOrder.push(playerGuess.playerId);
     }
   });
+}
+
+function getPointsEarnedForPlayerRound(game: Game) {
+  let pointsEarned: { [playerId: string]: number } = {};
+  let currentRound = game.roundHistory[game.roundHistory.length - 1];
+  let currentPlayerRound =
+    currentRound.playerRounds[currentRound.playerRounds.length - 1];
+  for (const playerId in game.players) {
+    pointsEarned[playerId] = 0;
+  }
+
+  currentPlayerRound.playerCorrectGuessOrder.forEach((playerId, index) => {
+    const points =
+      (currentPlayerRound.playerCorrectGuessOrder.length - index) * 50;
+
+    if (playerId in pointsEarned) {
+      pointsEarned[playerId] += points;
+    }
+  });
+
+  if (
+    game.currentArtistId !== undefined &&
+    game.currentArtistId in pointsEarned
+  ) {
+    pointsEarned[game.currentArtistId] +=
+      currentPlayerRound.playerCorrectGuessOrder.length * 20;
+  }
+
+  const sortedPointsEarned = Object.fromEntries(
+    Object.entries(pointsEarned).sort(([, a], [, b]) => b - a)
+  );
+
+  return sortedPointsEarned;
 }
 
 function allCorrectInCurrentPlayerRound(game: Game): boolean {

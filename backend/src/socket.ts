@@ -2,7 +2,6 @@ import { Server } from "socket.io";
 import { Server as HttpServer } from "http";
 import { parse } from "cookie";
 import {
-  Player,
   Game,
   addPlayerToGame,
   removePlayerFromGame,
@@ -20,6 +19,7 @@ interface ServerToClientEvents {
   timerTick: (message: number) => void;
   drawWordInfo: (word: string) => void;
   guessWordInfo: (wordLength: number) => void;
+  playerRoundResult: (data: { [playerId: string]: number }) => void;
 }
 
 interface ClientToServerEvents {
@@ -99,6 +99,9 @@ function initSocket(server: HttpServer) {
             guesserIds.forEach((guesserId: string) => {
               io.to(`${gameId}/${guesserId}`).emit("guessWordInfo", wordLength);
             });
+          },
+          (data: { [playerId: string]: number }) => {
+            io.to(gameId).emit("playerRoundResult", data);
           }
         );
       } catch (error) {
