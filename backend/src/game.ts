@@ -1,5 +1,9 @@
+import { wait } from "./util.js";
+import { chooseEasyWord } from "./words.js";
+
 interface Player {
   id: string;
+  points: number;
 }
 
 interface GameRules {
@@ -16,6 +20,21 @@ interface GamePlayers {
   [playerId: string]: PlayerDetails;
 }
 
+interface PlayerGuess {
+  playerId: string;
+  guess: string;
+}
+
+interface PlayerRound {
+  artistId: string;
+  playerGuesses: PlayerGuess[];
+  playerCorrectGuessOrder: string[];
+}
+
+interface Round {
+  playerRounds: PlayerRound[];
+}
+
 interface Game {
   id: string;
   rules: GameRules;
@@ -25,6 +44,8 @@ interface Game {
   hostPlayerId: string | undefined;
   currentRound: number;
   currentArtistId: string | undefined;
+  pastWords: string[];
+  roundHistory: Round[];
 }
 
 interface Games {
@@ -120,6 +141,8 @@ function startGame(
   tickTime: (time: number) => void,
   sendMessage: (message: string) => void,
   updateGameState: (gameState: Game) => void,
+  sendDrawWordInfo: (word: string, artistId: string) => void,
+  sendGuessWordInfo: (wordLength: number, guesserIds: string[]) => void
 ): undefined {
   if (!games.hasOwnProperty(gameId)) {
     gameLog(gameId, "game room no longer exists, exiting game flow");
@@ -128,7 +151,14 @@ function startGame(
 
   if (games[gameId].playerOrder.length > 1) {
     // recursively start rounds
-    startRound(gameId, tickTime, sendMessage, updateGameState);
+    startRound(
+      gameId,
+      tickTime,
+      sendMessage,
+      updateGameState,
+      sendDrawWordInfo,
+      sendGuessWordInfo
+    );
   } else {
     sendMessage("You need at least 2 players to start the game!");
   }
@@ -139,6 +169,8 @@ async function startRound(
   tickTime: (message: number) => void,
   sendMessage: (message: string) => void,
   updateGameState: (gameState: Game) => void,
+  sendDrawWordInfo: (word: string, artistId: string) => void,
+  sendGuessWordInfo: (wordLength: number, guesserIds: string[]) => void
 ): Promise<undefined> {
   if (!games.hasOwnProperty(gameId)) {
     gameLog(gameId, "game room no longer exists, exiting game flow");
@@ -146,6 +178,7 @@ async function startRound(
   }
   let game = games[gameId];
   game.hasStarted = true;
+  game.roundHistory.push({ playerRounds: [] });
   updateGameState(game);
   sendMessage(`starting round ${game.currentRound}`);
 
@@ -153,35 +186,111 @@ async function startRound(
   for (let i = 0; i < playerOrder.length; i++) {
     const playerId = playerOrder[i];
     game.currentArtistId = playerId;
+    game.roundHistory[game.currentRound - 1].playerRounds.push({
+      artistId: game.currentArtistId,
+      playerGuesses: [],
+      playerCorrectGuessOrder: [],
+    });
 
-    // TODO randomly choose word for user to draw and send word to artist
-    // TODO send length of word to all other users
+    const word = chooseEasyWord(game.pastWords);
+    game.pastWords.push(word);
+    sendDrawWordInfo(word, game.currentArtistId);
+    sendGuessWordInfo(word.length, getGuesserIds(game));
     sendMessage(`${game.currentArtistId} is drawing`);
 
-    // TODO wait <rules.drawTime> seconds to guess word
-    // TODO end wait time early if every player guesses correctly
-    for (let timeRemaining = game.rules.drawTime; timeRemaining >= 0; timeRemaining--) {
+    for (
+      let timeRemaining = game.rules.drawTime;
+      timeRemaining >= 0;
+      timeRemaining--
+    ) {
+      evaluateCurrentPlayerRound(game, word);
+      if (allCorrectInCurrentPlayerRound(game)) {
+        break;
+      }
       tickTime(timeRemaining);
       await wait(1);
     }
 
-    // TODO wait 5 seconds to show results (points earned per player)
+    // TODO wait 5 seconds to show results
+    // TODO send new event to show points earned by each player for this round
     for (let timeRemaining = 5; timeRemaining >= 0; timeRemaining--) {
       tickTime(timeRemaining);
       await wait(1);
     }
+
+    // TODO update player points at end of player guess after we calculate points
+    updateGameState(game);
   }
 
   if (game.currentRound < game.rules.numRounds) {
     game.currentRound++;
-    startRound(gameId, tickTime, sendMessage, updateGameState);
+    startRound(
+      gameId,
+      tickTime,
+      sendMessage,
+      updateGameState,
+      sendDrawWordInfo,
+      sendGuessWordInfo
+    );
   } else {
     // TODO end game logic
   }
 }
 
-function wait(seconds: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, seconds * 1000));
+function getGuesserIds(game: Game): string[] {
+  const { players, currentArtistId } = game;
+
+  return Object.keys(players).filter(
+    (playerId) => playerId !== currentArtistId
+  );
+}
+
+function evaluateCurrentPlayerRound(game: Game, word: string) {
+  let currentRound = game.roundHistory[game.roundHistory.length - 1];
+  let currentPlayerRound =
+    currentRound.playerRounds[currentRound.playerRounds.length - 1];
+
+  currentPlayerRound.playerGuesses.forEach((playerGuess) => {
+    console.log(playerGuess.guess);
+    if (
+      playerGuess.playerId != game.currentArtistId &&
+      playerGuess.guess === word &&
+      !currentPlayerRound.playerCorrectGuessOrder.includes(playerGuess.playerId)
+    ) {
+      currentPlayerRound.playerCorrectGuessOrder.push(playerGuess.playerId);
+    }
+  });
+}
+
+function allCorrectInCurrentPlayerRound(game: Game): boolean {
+  let currentRound = game.roundHistory[game.roundHistory.length - 1];
+  let currentPlayerRound =
+    currentRound.playerRounds[currentRound.playerRounds.length - 1];
+  return (
+    currentPlayerRound.playerCorrectGuessOrder.length == (game.playerOrder.length - 1)
+  );
+}
+
+function recordPlayerMessage(
+  gameId: string,
+  playerId: string,
+  message: string
+) {
+  if (!games.hasOwnProperty(gameId)) {
+    throw new Error("invalid gameId");
+  }
+
+  let game = games[gameId];
+
+  if (game.hasStarted) {
+    let currentRound = game.roundHistory[game.roundHistory.length - 1];
+    let currentPlayerRound =
+      currentRound.playerRounds[currentRound.playerRounds.length - 1];
+    currentPlayerRound.playerGuesses.push({
+      playerId: playerId,
+      guess: message,
+    });
+  }
 }
 
 export {
@@ -193,4 +302,5 @@ export {
   getGames,
   getGameState,
   startGame,
+  recordPlayerMessage,
 };

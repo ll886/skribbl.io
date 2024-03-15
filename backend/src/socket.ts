@@ -8,6 +8,7 @@ import {
   removePlayerFromGame,
   getGameState,
   startGame,
+  recordPlayerMessage,
 } from "./game.js";
 import { getUserByToken } from "./user.js";
 
@@ -17,6 +18,8 @@ interface ServerToClientEvents {
   sendMessage: (message: string) => void;
   currentUser: (data: { playerId: string }) => void;
   timerTick: (message: number) => void;
+  drawWordInfo: (word: string) => void;
+  guessWordInfo: (wordLength: number) => void;
 }
 
 interface ClientToServerEvents {
@@ -45,13 +48,14 @@ function initSocket(server: HttpServer) {
     if (socket.request.headers.cookie !== undefined) {
       const cookies = parse(socket.request.headers.cookie);
       if (cookies.hasOwnProperty("guestId")) {
-        const player = { id: cookies.guestId };
+        const player = { id: cookies.guestId, points: 0 };
+        // TODO refactor to just store the playerId
         socket.data.player = player;
       }
       if (cookies.hasOwnProperty("token")) {
         const user = await getUserByToken(cookies.token);
         if (user !== undefined) {
-          const player = { id: user.username };
+          const player = { id: user.username, points: 0 };
           socket.data.player = player;
         }
       }
@@ -63,6 +67,7 @@ function initSocket(server: HttpServer) {
         addPlayerToGame(gameId, player);
         socket.data.gameId = gameId;
         socket.join(gameId);
+        socket.join(`${gameId}/${player.id}`);
         const gameState = getGameState(gameId);
         io.to(socket.id).emit("currentUser", { playerId: player.id });
         io.to(gameId).emit("sendMessage", `${player.id} joined the room!`);
@@ -81,14 +86,22 @@ function initSocket(server: HttpServer) {
         const gameId = socket.data.gameId;
         startGame(
           gameId,
-          (time) => {
+          (time: number) => {
             io.to(gameId).emit("timerTick", time);
           },
-          (message) => {
+          (message: string) => {
             io.to(gameId).emit("sendMessage", message);
           },
-          (gameState) => {
+          (gameState: Game) => {
             io.to(gameId).emit("updateGameState", gameState);
+          },
+          (word: string, artistId: string) => {
+            io.to(`${gameId}/${artistId}`).emit("drawWordInfo", word);
+          },
+          (wordLength: number, guesserIds: string[]) => {
+            guesserIds.forEach((guesserId: string) => {
+              io.to(`${gameId}/${guesserId}`).emit("guessWordInfo", wordLength);
+            });
           },
         );
       } catch (error) {
@@ -103,6 +116,7 @@ function initSocket(server: HttpServer) {
       if (gameId !== null && player !== null) {
         console.log("attempt to remove player");
         socket.leave(gameId);
+        socket.leave(`${gameId}/${player.id}`);
         try {
           const priorHostPlayerId = getGameState(gameId).hostPlayerId;
           removePlayerFromGame(gameId, player);
@@ -126,6 +140,7 @@ function initSocket(server: HttpServer) {
       const player = socket.data.player;
       if (gameId !== null && player !== null) {
         io.to(gameId).emit("sendMessage", `${player.id}: ${message}`);
+        recordPlayerMessage(gameId, player.id, message);
       } else {
         console.log("error sending message due to missing info");
       }
