@@ -1,5 +1,6 @@
 import { Server } from "socket.io";
 import { Server as HttpServer } from "http";
+import { parse } from "cookie";
 import {
   Player,
   Game,
@@ -7,6 +8,7 @@ import {
   removePlayerFromGame,
   getGameState,
 } from "./game.js";
+import { getUserByToken } from "./user.js";
 
 interface ServerToClientEvents {
   updateGameState: (gameState: Game) => void;
@@ -15,7 +17,7 @@ interface ServerToClientEvents {
 }
 
 interface ClientToServerEvents {
-  joinRoom: (gameId: string, player: Player) => void;
+  joinRoom: (gameId: string) => void;
   sendMessage: (message: string) => void;
 }
 
@@ -32,18 +34,33 @@ function initSocket(server: HttpServer) {
     ServerToClientEvents,
     InterServerEvents,
     SocketData
-  >(server);
+  >(server, { cookie: true });
 
-  io.on("connection", (socket) => {
+  io.on("connection", async (socket) => {
     console.log("a user connected");
+    if (socket.request.headers.cookie !== undefined) {
+      const cookies = parse(socket.request.headers.cookie);
+      if (cookies.hasOwnProperty("guestId")) {
+        const player = { id: cookies.guestId };
+        socket.data.player = player;
+      }
+      if (cookies.hasOwnProperty("token")) {
+        const user = await getUserByToken(cookies.token);
+        if (user !== undefined) {
+          const player = { id: user.username };
+          socket.data.player = player;
+        }
+      }
+    }
 
-    socket.on("joinRoom", (gameId, player) => {
+    socket.on("joinRoom", (gameId) => {
       try {
+        const player = socket.data.player;
         addPlayerToGame(gameId, player);
         socket.data.gameId = gameId;
-        socket.data.player = player;
         socket.join(gameId);
         const gameState = getGameState(gameId);
+        io.to(gameId).emit("sendMessage", `${player.id} has joined the game`);
         io.to(gameId).emit("updateGameState", gameState);
       } catch (e) {
         console.log(e);
@@ -61,6 +78,7 @@ function initSocket(server: HttpServer) {
         try {
           removePlayerFromGame(gameId, player);
           const gameState = getGameState(gameId);
+          io.to(gameId).emit("sendMessage", `${player.id} has left the game`);
           io.to(gameId).emit("updateGameState", gameState);
         } catch (e) {
           console.log(e);

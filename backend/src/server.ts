@@ -9,6 +9,7 @@ import crypto from "crypto";
 import { createServer } from 'node:http';
 import { initSocket } from './socket.js';
 import roomsRouter from './routes.rooms.js';
+import { tokenStorage } from "./user.js";
 
 // init app
 const port = 3001
@@ -31,8 +32,6 @@ app.use(cors({
 
 // app routes
 app.use("/api/rooms", roomsRouter);
-
-let tokenStorage: { [key: string]: string } = {};
 
 let cookieOptions: CookieOptions = {
   httpOnly: true,
@@ -145,3 +144,8 @@ app.post("/logout", (req, res) => {
 server.listen(port, () => {
   console.log(`${protocol}://${host}:${port}`);
 });
+
+
+export {
+  db,
+};

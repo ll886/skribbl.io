@@ -9,15 +9,64 @@ const names = [
   "Grapes",
   "Kiwi",
   "Lemon",
+  "Mango",
+  "Pineapple",
+  "Watermelon",
+  "Orange",
+  "Strawberry",
+  "Raspberry",
+  "Blueberry",
+  "Blackberry",
+  "Peach",
+  "Plum",
+  "Apricot",
+  "Papaya",
+  "Pomegranate",
+  "Guava",
+  "Passionfruit",
+  "Avocado",
+  "Cranberry",
+  "Lime",
+  "Coconut",
+  "Cantaloupe",
+  "Dragon Fruit",
+  "Elderberry",
+  "Honeydew",
+  "Lychee",
+  "Nectarine",
+  "Persimmon",
+  "Rambutan",
+  "Tangerine",
+  "Ugli Fruit",
+  "Quince",
+  "Kumquat",
+  "Starfruit",
+  "Mandarin",
+  "Boysenberry",
+  "Currant",
+  "Cherimoya",
+  "Feijoa",
+  "Mulberry",
+  "Soursop",
+  "Tamarillo",
+  "Plantain",
+  "Rutabaga",
+  "Salak",
+  "Jujube",
+  "Sapote",
 ];
 
-export function getRandomFruit() {
+function getRandomFruit() {
   const randomIndex = Math.floor(Math.random() * names.length);
   return names[randomIndex];
 }
 
-export function getGuestId() {
-  let guestId = Cookies.get("guestId");
+function getGuestId() {
+  return Cookies.get("guestId");
+}
+
+function generateGuestIdIfNull() {
+  let guestId = getGuestId();
 
   if (!guestId) {
     guestId = getRandomFruit();
@@ -26,3 +75,5 @@ export function getGuestId() {
 
   return guestId;
 }
+
+export { generateGuestIdIfNull };
