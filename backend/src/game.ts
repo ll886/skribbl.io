@@ -211,17 +211,16 @@ async function startRound(
 
     const playerPointsEarned = getPointsEarnedForPlayerRound(game);
     sendPlayerRoundResult(playerPointsEarned);
-
-    for (let timeRemaining = 5; timeRemaining >= 0; timeRemaining--) {
-      tickTime(timeRemaining);
-      await wait(1);
-    }
-
     for (const [playerId, points] of Object.entries(playerPointsEarned)) {
       game.players[playerId].points = points;
     }
 
     updateGameState(game);
+
+    for (let timeRemaining = 5; timeRemaining >= 0; timeRemaining--) {
+      tickTime(timeRemaining);
+      await wait(1);
+    }
   }
 
   if (game.currentRound < game.rules.numRounds) {
