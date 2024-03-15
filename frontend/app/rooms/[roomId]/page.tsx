@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import Canvas from "@/components/canvas";
 import Chat from "@/components/chat";
 import Timer from "@/components/timer";
+import Round from "@/components/round";
 import { generateGuestIdIfNull } from "@/app/names";
 import { Game } from "@/app/interfaces";
 
@@ -77,6 +78,7 @@ function Page() {
     <div className="flex h-screen bg-white">
       <div className="flex-grow p-4">{Canvas()}</div>
       <div className="w-1/4 p-4">
+        <Round gameState={gameState} />
         <Chat socket={socket} />
 
         <div>
