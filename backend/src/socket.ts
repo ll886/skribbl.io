@@ -32,7 +32,7 @@ interface InterServerEvents {}
 
 interface SocketData {
   gameId: string;
-  player: Player;
+  playerId: string;
 }
 
 function initSocket(server: HttpServer) {
@@ -48,31 +48,28 @@ function initSocket(server: HttpServer) {
     if (socket.request.headers.cookie !== undefined) {
       const cookies = parse(socket.request.headers.cookie);
       if (cookies.hasOwnProperty("guestId")) {
-        const player = { id: cookies.guestId, points: 0 };
-        // TODO refactor to just store the playerId
-        socket.data.player = player;
+        socket.data.playerId = cookies.guestId;
       }
       if (cookies.hasOwnProperty("token")) {
         const user = await getUserByToken(cookies.token);
         if (user !== undefined) {
-          const player = { id: user.username, points: 0 };
-          socket.data.player = player;
+          socket.data.playerId = user.username;
         }
       }
     }
 
     socket.on("joinRoom", (gameId) => {
       try {
-        const player = socket.data.player;
-        addPlayerToGame(gameId, player);
+        const playerId = socket.data.playerId;
+        addPlayerToGame(gameId, playerId);
         socket.data.gameId = gameId;
         socket.join(gameId);
-        socket.join(`${gameId}/${player.id}`);
+        socket.join(`${gameId}/${playerId}`);
         const gameState = getGameState(gameId);
-        io.to(socket.id).emit("currentUser", { playerId: player.id });
-        io.to(gameId).emit("sendMessage", `${player.id} joined the room!`);
-        if (gameState.hostPlayerId === player.id) {
-          io.to(gameId).emit("sendMessage", `${player.id} is the room owner!`);
+        io.to(socket.id).emit("currentUser", { playerId: playerId });
+        io.to(gameId).emit("sendMessage", `${playerId} joined the room!`);
+        if (gameState.hostPlayerId === playerId) {
+          io.to(gameId).emit("sendMessage", `${playerId} is the room owner!`);
         }
         io.to(gameId).emit("updateGameState", gameState);
       } catch (e) {
@@ -102,7 +99,7 @@ function initSocket(server: HttpServer) {
             guesserIds.forEach((guesserId: string) => {
               io.to(`${gameId}/${guesserId}`).emit("guessWordInfo", wordLength);
             });
-          },
+          }
         );
       } catch (error) {
         console.error("Error starting game:", error);
@@ -112,16 +109,16 @@ function initSocket(server: HttpServer) {
     socket.on("disconnect", () => {
       console.log("user disconnected");
       const gameId = socket.data.gameId;
-      const player = socket.data.player;
-      if (gameId !== null && player !== null) {
+      const playerId = socket.data.playerId;
+      if (gameId !== null && playerId !== null) {
         console.log("attempt to remove player");
         socket.leave(gameId);
-        socket.leave(`${gameId}/${player.id}`);
+        socket.leave(`${gameId}/${playerId}`);
         try {
           const priorHostPlayerId = getGameState(gameId).hostPlayerId;
-          removePlayerFromGame(gameId, player);
+          removePlayerFromGame(gameId, playerId);
           const gameState = getGameState(gameId);
-          io.to(gameId).emit("sendMessage", `${player.id} left the room!`);
+          io.to(gameId).emit("sendMessage", `${playerId} left the room!`);
           if (priorHostPlayerId !== gameState.hostPlayerId) {
             io.to(gameId).emit(
               "sendMessage",
@@ -137,10 +134,10 @@ function initSocket(server: HttpServer) {
 
     socket.on("sendMessage", (message) => {
       const gameId = socket.data.gameId;
-      const player = socket.data.player;
-      if (gameId !== null && player !== null) {
-        io.to(gameId).emit("sendMessage", `${player.id}: ${message}`);
-        recordPlayerMessage(gameId, player.id, message);
+      const playerId = socket.data.playerId;
+      if (gameId !== null && playerId !== null) {
+        io.to(gameId).emit("sendMessage", `${playerId}: ${message}`);
+        recordPlayerMessage(gameId, playerId, message);
       } else {
         console.log("error sending message due to missing info");
       }

@@ -11,13 +11,8 @@ interface GameRules {
   numRounds: number;
 }
 
-interface PlayerDetails {
-  player: Player;
-  points: number;
-}
-
 interface GamePlayers {
-  [playerId: string]: PlayerDetails;
+  [playerId: string]: Player;
 }
 
 interface PlayerGuess {
@@ -73,40 +68,40 @@ function registerGameRoom(game: Game) {
   gameLog(game.id, "created room");
 }
 
-function addPlayerToGame(gameId: string, player: Player) {
+function addPlayerToGame(gameId: string, playerId: string) {
   if (!games.hasOwnProperty(gameId)) {
     throw new Error("invalid gameId");
   }
 
-  if (player.id === undefined) {
+  if (playerId === undefined) {
     throw new Error("player does not have an id");
   }
 
-  if (games[gameId].players.hasOwnProperty(player.id)) {
+  if (games[gameId].players.hasOwnProperty(playerId)) {
     throw new Error("playerId already registered in game");
   }
 
   const isFirstPlayer = Object.keys(games[gameId].players).length === 0;
   const points = 0;
-  games[gameId].players[player.id] = { player, points };
-  games[gameId].playerOrder.push(player.id);
+  games[gameId].players[playerId] = { id: playerId, points };
+  games[gameId].playerOrder.push(playerId);
   if (isFirstPlayer) {
-    games[gameId].hostPlayerId = player.id;
+    games[gameId].hostPlayerId = playerId;
   }
 
-  playerLog(gameId, player.id, "added player");
+  playerLog(gameId, playerId, "added player");
 }
 
-function removePlayerFromGame(gameId: string, player: Player) {
+function removePlayerFromGame(gameId: string, playerId: string) {
   if (games.hasOwnProperty(gameId)) {
-    if (games[gameId].players.hasOwnProperty(player.id)) {
+    if (games[gameId].players.hasOwnProperty(playerId)) {
       const updatedPlayerOrder = games[gameId].playerOrder.filter(
-        (playerId) => playerId !== player.id
+        (playerId) => playerId !== playerId
       );
-      delete games[gameId].players[player.id];
+      delete games[gameId].players[playerId];
       games[gameId].playerOrder = updatedPlayerOrder;
 
-      playerLog(gameId, player.id, "removed player");
+      playerLog(gameId, playerId, "removed player");
       // TODO handle when only 1 player remains during an ongoing game
       if (updatedPlayerOrder.length === 0) {
         delete games[gameId];
@@ -114,7 +109,7 @@ function removePlayerFromGame(gameId: string, player: Player) {
         gameLog(gameId, "game deleted");
       } else {
         if (
-          games[gameId].hostPlayerId === player.id &&
+          games[gameId].hostPlayerId === playerId &&
           games[gameId].playerOrder.length > 0
         ) {
           const newHostId = games[gameId].playerOrder[0];
@@ -267,7 +262,8 @@ function allCorrectInCurrentPlayerRound(game: Game): boolean {
   let currentPlayerRound =
     currentRound.playerRounds[currentRound.playerRounds.length - 1];
   return (
-    currentPlayerRound.playerCorrectGuessOrder.length == (game.playerOrder.length - 1)
+    currentPlayerRound.playerCorrectGuessOrder.length ==
+    game.playerOrder.length - 1
   );
 }
 
