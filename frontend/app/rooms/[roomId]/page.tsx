@@ -20,7 +20,6 @@ function Page() {
   const [isLinkCopied, setIsLinkCopied] = useState(false);
   const [playerId, setPlayerId] = useState(null);
   const [gameState, setGameState] = useState<Game | null>(null);
-  const [drawWordInfo, setDrawWordInfo] = useState<string>("");
 
   useEffect(() => {
     generateGuestIdIfNull();
