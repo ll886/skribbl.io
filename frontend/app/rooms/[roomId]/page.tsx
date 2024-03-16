@@ -7,8 +7,11 @@ import { useRouter } from "next/navigation";
 import Canvas from "@/components/canvas";
 import Chat from "@/components/chat";
 import Timer from "@/components/timer";
+import Round from "@/components/round";
 import { generateGuestIdIfNull } from "@/app/names";
 import { Game } from "@/app/interfaces";
+import Word from "@/components/word";
+import Leaderboard from "@/components/leaderboard";
 
 function Page() {
   const { roomId } = useParams();
@@ -75,8 +78,15 @@ function Page() {
 
   return (
     <div className="flex h-screen bg-white">
-      <div className="flex-grow p-4">{Canvas()}</div>
+      <div className="flex-grow">
+        <Leaderboard gameState={gameState} />
+      </div>
+      <div className="flex-grow p-4">
+        <Word socket={socket} />
+        <Canvas socket={socket} />
+      </div>
       <div className="w-1/4 p-4">
+        <Round gameState={gameState} />
         <Chat socket={socket} />
 
         <div>

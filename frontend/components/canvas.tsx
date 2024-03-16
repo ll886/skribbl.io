@@ -1,13 +1,24 @@
 "use client";
 
 import { useDraw } from "@/hooks/useDraw";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CompactPicker } from "react-color";
 
-export default function Canvas() {
+export default function Canvas({ socket }) {
   const [color, setColor] = useState<string>('#000');
   const [width, setWidth] = useState<number>(5);
   const { canvasRef, onMouseDown, clear } = useDraw(drawLine);
+  const [drawWord, setDrawWord] = useState("")
+
+  useEffect(() => {
+    socket.on("updateGameState", () => {
+        setDrawWord("")
+    })
+
+    socket.on("drawWordInfo", (word: string) => {
+        setDrawWord(word)
+    })
+  })
 
   function drawLine({ prevPoint, currentPoint, context }: Draw) {
     const { x: currX, y: currY } = currentPoint;
@@ -39,28 +50,9 @@ export default function Canvas() {
           className="border border-black rounded-md"
         />
       </div>
-      <div className="w-full flex justify-center items-center">
-        <div>
-          <CompactPicker 
-            color={color} 
-            onChange={(e) => {
-              setColor(e.hex)
-              setWidth(5)
-            }}
-          />
-        </div>
-        <div>
-          <button
-            type="button"
-            className="p-2 rounded-md border border-black"
-            onClick={() => {
-              setColor('#FFF')
-              setWidth(20)
-            }}
-          >
-            Eraser
-          </button>
-          <br></br>
+      {
+        drawWord ?
+        <div className="w-full flex justify-center items-center">
           <button
             type="button"
             className="p-2 rounded-md border border-black"
@@ -69,7 +61,9 @@ export default function Canvas() {
             Clear canvas
           </button>
         </div>
-      </div>
+        :
+        <></>
+      }
     </>
   );
 }
