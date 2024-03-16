@@ -19,8 +19,8 @@ export default function Canvas({ socket }) {
 
   function drawLine({ prevPoint, currentPoint, context }: Draw) {
     const { x: currX, y: currY } = currentPoint;
-    const lineColor = "#000";
-    const lineWidth = 5;
+    const lineColor = color;
+    const lineWidth = width;
 
     let startPoint = prevPoint ?? currentPoint;
     context.beginPath();
