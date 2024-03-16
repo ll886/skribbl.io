@@ -24,8 +24,8 @@ export default function Word({ socket }) {
     }, [])
 
     return (
-        <div>
-            <p>
+        <div className="w-full">
+            <p className="text-center">
                 Word:&nbsp;
                 {
                     drawWord ? 

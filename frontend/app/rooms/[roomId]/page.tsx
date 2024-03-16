@@ -78,8 +78,8 @@ function Page() {
 
   return (
     <div className="flex h-screen bg-white">
-      <Word socket={socket} />
       <div className="flex-grow p-4">
+        <Word socket={socket} />
         <Canvas socket={socket} />
       </div>
       <div className="w-1/4 p-4">
