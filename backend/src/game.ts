@@ -186,6 +186,7 @@ async function startRound(
     eventHandler.sendDrawWordInfo(word, game.currentArtistId);
     eventHandler.sendGuessWordInfo(word.length, getGuesserIds(game));
     eventHandler.sendMessage(`${game.currentArtistId} is drawing now!`);
+    eventHandler.sendMessage(`The word is ${word.length} letters`);
 
     for (
       let timeRemaining = game.rules.drawTime;
