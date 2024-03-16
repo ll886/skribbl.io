@@ -252,7 +252,7 @@ function evaluateCurrentPlayerRound(
   currentPlayerRound.playerGuesses.forEach((playerGuess) => {
     if (
       playerGuess.playerId != game.currentArtistId &&
-      playerGuess.guess === word &&
+      playerGuess.guess.toLowerCase() === word.toLowerCase() &&
       !currentPlayerRound.playerCorrectGuessOrder.includes(playerGuess.playerId)
     ) {
       currentPlayerRound.playerCorrectGuessOrder.push(playerGuess.playerId);
