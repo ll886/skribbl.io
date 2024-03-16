@@ -21,7 +21,7 @@ export default function Leaderboard({ gameState }) {
 
     return (
         <>
-            <p className="h2">Leaderboard</p>
+            <p>Leaderboard</p>
             <ul>
                 {
                     playerOrder?.map((name, index) => 

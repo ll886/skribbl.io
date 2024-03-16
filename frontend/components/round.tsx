@@ -1,5 +1,6 @@
 "use client";
 
+import socket from "@/app/socket";
 import { useEffect, useState } from "react"
 
 export default function Round({ gameState }) {
@@ -13,11 +14,23 @@ export default function Round({ gameState }) {
         if (gameState.currentRound) {
             setRound(gameState.currentRound)
         }
+
+        socket.on("endGame", () => {
+            setRound(-1)
+        })
     }, [gameState])
 
     return (
         <div>
-            <p>Round: {round}</p>
+            <p>
+                ROUND:&nbsp;
+                {
+                    round !== -1 ?
+                    round
+                    :
+                    "END"
+                }
+            </p>
         </div>
     )
 }

@@ -17,6 +17,7 @@ export default function Word({ socket }) {
         socket.on("guessWordInfo", (wordLength: number) => {
             let blank: string = ""
             for (let i=0; i<wordLength; i++) {
+                // Whitespaces are part of the guess word
                 blank += "_ "
             }
             setGuessWord(blank)
