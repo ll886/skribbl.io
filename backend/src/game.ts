@@ -206,11 +206,12 @@ async function startRound(
 
     const playerPointsEarned = getPointsEarnedForPlayerRound(game);
     eventHandler.sendPlayerRoundResult(playerPointsEarned);
+    eventHandler.sendMessage(`The word was '${word}'`);
     for (const [playerId, points] of Object.entries(playerPointsEarned)) {
       game.players[playerId].points = points;
+      eventHandler.sendMessage(`${playerId} earned ${points} points!`);
     }
     eventHandler.updateGameState(game);
-    eventHandler.sendMessage(`The word was '${word}'`);
 
     for (let timeRemaining = 5; timeRemaining >= 0; timeRemaining--) {
       if (endGameIfEligible(game, eventHandler)) {
