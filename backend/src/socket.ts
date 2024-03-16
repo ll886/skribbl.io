@@ -21,6 +21,7 @@ interface ServerToClientEvents {
   drawWordInfo: (word: string) => void;
   guessWordInfo: (wordLength: number) => void;
   playerRoundResult: (data: { [playerId: string]: number }) => void;
+  endGame: () => void;
 }
 
 interface ClientToServerEvents {
@@ -102,12 +103,12 @@ function initSocket(server: HttpServer) {
           },
           sendPlayerRoundResult: (data: { [playerId: string]: number }) => {
             io.to(gameId).emit("playerRoundResult", data);
-          }
-        }
-        startGame(
-          gameId,
-          eventHandler,
-        );
+          },
+          endGame: () => {
+            io.to(gameId).emit("endGame");
+          },
+        };
+        startGame(gameId, eventHandler);
       } catch (error: any) {
         console.error("Error running game:", error.message);
       }

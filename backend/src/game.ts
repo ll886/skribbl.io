@@ -54,6 +54,7 @@ interface GameEventHandler {
   sendDrawWordInfo: (word: string, artistId: string) => void;
   sendGuessWordInfo: (wordLength: number, guesserIds: string[]) => void;
   sendPlayerRoundResult: (data: { [playerId: string]: number }) => void;
+  endGame: () => void;
 }
 
 let games: Games = {};
@@ -325,6 +326,7 @@ function endGame(game: Game, eventHandler: GameEventHandler) {
     `${player.id} won with a score of ${player.points}!`
   );
   eventHandler.tickTime(0);
+  eventHandler.endGame();
 }
 
 function recordPlayerMessage(
