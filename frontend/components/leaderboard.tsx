@@ -20,7 +20,7 @@ export default function Leaderboard({ gameState }) {
             <p>Leaderboard</p>
             <ul>
                 {
-                    players.map((player: any, index) => 
+                    players.map((player: any, index: number) => 
                         <li key={index}>{player.id} - {player.points}</li>
                     )
                 }
