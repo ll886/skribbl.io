@@ -1,21 +1,17 @@
 import { useEffect, useState } from "react"
 
 export default function Leaderboard({ gameState }) {
-    const [playerOrder, setPlayerOrder] = useState<[]>()
-    const [players, setPlayers] = useState({})
+    const [players, setPlayers] = useState<any>([])
 
     useEffect(() => {
         if (!gameState) {
             return
         }
 
-        if (gameState.playerOrder) {
-            setPlayerOrder(gameState.playerOrder)
-            console.log(gameState.playerOrder)
-        }
-
         if (gameState.players) {
-            setPlayers(gameState.players)
+            const playersArray = Object.values(gameState.players);
+            const sortedDescending = playersArray.sort((a: any, b: any) => b.points - a.points);
+            setPlayers(sortedDescending)
         }
     }, [gameState])
 
@@ -24,8 +20,8 @@ export default function Leaderboard({ gameState }) {
             <p>Leaderboard</p>
             <ul>
                 {
-                    playerOrder?.map((name, index) => 
-                        <li key={index}>{players[name]["id"]} - {players[name]["points"]}</li>
+                    players.map((player: any, index) => 
+                        <li key={index}>{player.id} - {player.points}</li>
                     )
                 }
             </ul>
