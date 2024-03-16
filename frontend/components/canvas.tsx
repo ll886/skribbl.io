@@ -1,9 +1,21 @@
 "use client";
 
 import { useDraw } from "@/hooks/useDraw";
+import { useEffect, useState } from "react";
 
-export default function Canvas() {
+export default function Canvas({ socket }) {
   const { canvasRef, onMouseDown, clear } = useDraw(drawLine);
+  const [drawWord, setDrawWord] = useState("")
+
+  useEffect(() => {
+    socket.on("updateGameState", () => {
+        setDrawWord("")
+    })
+
+    socket.on("drawWordInfo", (word: string) => {
+        setDrawWord(word)
+    })
+  })
 
   function drawLine({ prevPoint, currentPoint, context }: Draw) {
     const { x: currX, y: currY } = currentPoint;
@@ -35,15 +47,20 @@ export default function Canvas() {
           className="border border-black rounded-md"
         />
       </div>
-      <div className="w-full flex justify-center items-center">
-        <button
-          type="button"
-          className="p-2 rounded-md border border-black"
-          onClick={clear}
-        >
-          Clear canvas
-        </button>
-      </div>
+      {
+        drawWord ?
+        <div className="w-full flex justify-center items-center">
+          <button
+            type="button"
+            className="p-2 rounded-md border border-black"
+            onClick={clear}
+          >
+            Clear canvas
+          </button>
+        </div>
+        :
+        <></>
+      }
     </>
   );
 }
