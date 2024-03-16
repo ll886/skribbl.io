@@ -11,6 +11,7 @@ import Round from "@/components/round";
 import { generateGuestIdIfNull } from "@/app/names";
 import { Game } from "@/app/interfaces";
 import Word from "@/components/word";
+import Leaderboard from "@/components/leaderboard";
 
 function Page() {
   const { roomId } = useParams();
@@ -79,6 +80,9 @@ function Page() {
 
   return (
     <div className="flex h-screen bg-white">
+      <div className="flex-grow">
+        <Leaderboard gameState={gameState} />
+      </div>
       <div className="flex-grow p-4">
         <Word socket={socket} />
         <Canvas socket={socket} />
