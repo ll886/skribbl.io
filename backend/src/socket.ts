@@ -8,6 +8,7 @@ import {
   getGameState,
   startGame,
   recordPlayerMessage,
+  GameEventHandler,
 } from "./game.js";
 import { getUserByToken } from "./user.js";
 
@@ -20,6 +21,7 @@ interface ServerToClientEvents {
   drawWordInfo: (word: string) => void;
   guessWordInfo: (wordLength: number) => void;
   playerRoundResult: (data: { [playerId: string]: number }) => void;
+  endGame: () => void;
 }
 
 interface ClientToServerEvents {
@@ -72,8 +74,8 @@ function initSocket(server: HttpServer) {
           io.to(gameId).emit("sendMessage", `${playerId} is the room owner!`);
         }
         io.to(gameId).emit("updateGameState", gameState);
-      } catch (e) {
-        console.log(e);
+      } catch (e: any) {
+        console.log(e.message);
         io.to(socket.id).emit("joinGameError");
       }
     });
@@ -81,31 +83,34 @@ function initSocket(server: HttpServer) {
     socket.on("startGame", () => {
       try {
         const gameId = socket.data.gameId;
-        startGame(
-          gameId,
-          (time: number) => {
+        const eventHandler: GameEventHandler = {
+          tickTime: (time: number) => {
             io.to(gameId).emit("timerTick", time);
           },
-          (message: string) => {
+          sendMessage: (message: string) => {
             io.to(gameId).emit("sendMessage", message);
           },
-          (gameState: Game) => {
+          updateGameState: (gameState: Game) => {
             io.to(gameId).emit("updateGameState", gameState);
           },
-          (word: string, artistId: string) => {
+          sendDrawWordInfo: (word: string, artistId: string) => {
             io.to(`${gameId}/${artistId}`).emit("drawWordInfo", word);
           },
-          (wordLength: number, guesserIds: string[]) => {
+          sendGuessWordInfo: (wordLength: number, guesserIds: string[]) => {
             guesserIds.forEach((guesserId: string) => {
               io.to(`${gameId}/${guesserId}`).emit("guessWordInfo", wordLength);
             });
           },
-          (data: { [playerId: string]: number }) => {
+          sendPlayerRoundResult: (data: { [playerId: string]: number }) => {
             io.to(gameId).emit("playerRoundResult", data);
-          }
-        );
-      } catch (error) {
-        console.error("Error starting game:", error);
+          },
+          endGame: () => {
+            io.to(gameId).emit("endGame");
+          },
+        };
+        startGame(gameId, eventHandler);
+      } catch (error: any) {
+        console.error("Error running game:", error.message);
       }
     });
 
@@ -129,8 +134,8 @@ function initSocket(server: HttpServer) {
             );
           }
           io.to(gameId).emit("updateGameState", gameState);
-        } catch (e) {
-          console.log(e);
+        } catch (error: any) {
+          console.error("Error removing player:", error.message);
         }
       }
     });
