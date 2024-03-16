@@ -7,6 +7,7 @@ import {
   addPlayerToGame,
   removePlayerFromGame,
   getGameState,
+  startGame,
 } from "./game.js";
 import { getUserByToken } from "./user.js";
 
@@ -14,11 +15,14 @@ interface ServerToClientEvents {
   updateGameState: (gameState: Game) => void;
   joinGameError: () => void;
   sendMessage: (message: string) => void;
+  currentUser: (data: { playerId: string }) => void;
+  timerTick: (message: number) => void;
 }
 
 interface ClientToServerEvents {
   joinRoom: (gameId: string) => void;
   sendMessage: (message: string) => void;
+  startGame: () => void;
 }
 
 interface InterServerEvents {}
@@ -60,7 +64,11 @@ function initSocket(server: HttpServer) {
         socket.data.gameId = gameId;
         socket.join(gameId);
         const gameState = getGameState(gameId);
-        io.to(gameId).emit("sendMessage", `${player.id} has joined the game`);
+        io.to(socket.id).emit("currentUser", { playerId: player.id });
+        io.to(gameId).emit("sendMessage", `${player.id} joined the room!`);
+        if (gameState.hostPlayerId === player.id) {
+          io.to(gameId).emit("sendMessage", `${player.id} is the room owner!`);
+        }
         io.to(gameId).emit("updateGameState", gameState);
       } catch (e) {
         console.log(e);
@@ -68,17 +76,44 @@ function initSocket(server: HttpServer) {
       }
     });
 
+    socket.on("startGame", () => {
+      try {
+        const gameId = socket.data.gameId;
+        startGame(
+          gameId,
+          (time) => {
+            io.to(gameId).emit("timerTick", time);
+          },
+          (message) => {
+            io.to(gameId).emit("sendMessage", message);
+          },
+          (gameState) => {
+            io.to(gameId).emit("updateGameState", gameState);
+          },
+        );
+      } catch (error) {
+        console.error("Error starting game:", error);
+      }
+    });
+
     socket.on("disconnect", () => {
       console.log("user disconnected");
       const gameId = socket.data.gameId;
       const player = socket.data.player;
-      console.log(gameId, player);
       if (gameId !== null && player !== null) {
         console.log("attempt to remove player");
+        socket.leave(gameId);
         try {
+          const priorHostPlayerId = getGameState(gameId).hostPlayerId;
           removePlayerFromGame(gameId, player);
           const gameState = getGameState(gameId);
-          io.to(gameId).emit("sendMessage", `${player.id} has left the game`);
+          io.to(gameId).emit("sendMessage", `${player.id} left the room!`);
+          if (priorHostPlayerId !== gameState.hostPlayerId) {
+            io.to(gameId).emit(
+              "sendMessage",
+              `${gameState.hostPlayerId} is now the room owner!`
+            );
+          }
           io.to(gameId).emit("updateGameState", gameState);
         } catch (e) {
           console.log(e);

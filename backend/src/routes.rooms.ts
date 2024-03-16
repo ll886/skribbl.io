@@ -33,6 +33,9 @@ router.post("/", async (req, res) => {
         hasStarted: false,
         players: {},
         playerOrder: [],
+        hostPlayerId: undefined,
+        currentRound: 1,
+        currentArtistId: undefined,
     }
     registerGameRoom(game);
     return res.json(game);
