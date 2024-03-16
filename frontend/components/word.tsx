@@ -1,21 +1,39 @@
 import { useEffect, useState } from "react"
 
 export default function Word({ socket }) {
-    const [word, setWord] = useState<string>("")
+    const [drawWord, setDrawWord] = useState<string>("")
+    const [guessWord, setGuessWord] = useState<string>("")
 
     useEffect(() => {
         socket.on("updateGameState", () => {
-            setWord("")
+            setDrawWord("")
+            setGuessWord("")
         })
-        
+
         socket.on("drawWordInfo", (word: string) => {
-            setWord(word)
+            setDrawWord(word.toUpperCase())
+        })
+
+        socket.on("guessWordInfo", (wordLength: number) => {
+            let blank: string = ""
+            for (let i=0; i<wordLength; i++) {
+                blank += "_ "
+            }
+            setGuessWord(blank)
         })
     }, [])
 
     return (
         <div>
-            <p>Word: {word}</p>
+            <p>
+                Word:&nbsp;
+                {
+                    drawWord ? 
+                    drawWord
+                    :
+                    guessWord
+                }
+            </p>
         </div>
     )
 }
