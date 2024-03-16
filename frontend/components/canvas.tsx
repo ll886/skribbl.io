@@ -2,8 +2,11 @@
 
 import { useDraw } from "@/hooks/useDraw";
 import { useEffect, useState } from "react";
+import { CompactPicker } from "react-color";
 
 export default function Canvas({ socket }) {
+  const [color, setColor] = useState<string>('#000');
+  const [width, setWidth] = useState<number>(5);
   const { canvasRef, onMouseDown, clear } = useDraw(drawLine);
   const [drawWord, setDrawWord] = useState("")
 
