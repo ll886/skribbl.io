@@ -1,11 +1,12 @@
 type DrawLineProps = Draw & {
     color: string
+    width: number
   }
   
-export const drawLine = ({ prevPoint, currentPoint, ctx, color }: DrawLineProps) => {
+export const drawLine = ({ prevPoint, currentPoint, ctx, color, width }: DrawLineProps) => {
   const { x: currX, y: currY } = currentPoint
   const lineColor = color
-  const lineWidth = 5
+  const lineWidth = width
 
   let startPoint = prevPoint ?? currentPoint
   ctx.beginPath()

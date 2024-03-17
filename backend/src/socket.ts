@@ -17,15 +17,17 @@ interface ServerToClientEvents {
   updateGameState: (gameState: Game) => void;
   joinGameError: () => void;
   sendMessage: (message: string) => void;
-  drawLine: (prevPoint: Point, currentPoint: Point, color: string) => void;
+  drawLine: (prevPoint: Point, currentPoint: Point, color: string, width: number) => void;
   canvasStateFromServer: (state: string) => void;
+  clear: (clearFunc: () => void) => void;
 }
 
 interface ClientToServerEvents {
   joinRoom: (gameId: string) => void;
   sendMessage: (message: string) => void;
-  drawLine: (prevPoint: Point, currentPoint: Point, color: string) => void;
+  drawLine: (prevPoint: Point, currentPoint: Point, color: string, width: number) => void;
   canvasState: (state: string) => void;
+  clear: (clearFunc: () => void) => void;
 }
 
 interface InterServerEvents {}
@@ -108,10 +110,10 @@ function initSocket(server: HttpServer) {
       }
     });
 
-    socket.on("drawLine", ( prevPoint, currentPoint, color) => {
+    socket.on("drawLine", (prevPoint, currentPoint, color, width) => {
       const gameId = socket.data.gameId;
       if (gameId !== null) {
-        socket.to(gameId).emit("drawLine",  prevPoint, currentPoint, color);
+        socket.to(gameId).emit("drawLine",  prevPoint, currentPoint, color, width);
       }
     });
 
@@ -119,6 +121,13 @@ function initSocket(server: HttpServer) {
       const gameId = socket.data.gameId;
       console.log('received canvas state')
       storeCanvasState(gameId, state);
+    })
+
+    socket.on('clear', (clearFunc: () => void) => {
+      const gameId = socket.data.gameId;
+      if (gameId !== null) {
+        socket.to(gameId).emit("clear",  clearFunc);
+      }
     })
   });
 }
