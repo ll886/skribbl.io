@@ -1,36 +1,28 @@
 "use client";
 
-import socket from "@/app/socket";
+import { Box, Typography } from "@mui/material";
 import { useEffect, useState } from "react"
 
-export default function Round({ gameState }) {
-    const [round, setRound] = useState<number>(0)
+export default function Round({ socket }) {
+    const [round, setRound] = useState<number | "END">(0)
+    const [rounds, setRounds] = useState<number>(0)
 
     useEffect(() => {
-        if (!gameState) {
-            return
-        }
-
-        if (gameState.currentRound) {
-            setRound(gameState.currentRound)
-        }
+        socket.on("updateGameState", (updatedGameState) => {
+            setRound(updatedGameState.currentRound)
+            setRounds(updatedGameState.rules.numRounds)
+        });
 
         socket.on("endGame", () => {
-            setRound(-1)
+            setRound("END")
         })
-    }, [gameState])
+    }, [socket])
 
     return (
-        <div>
-            <p>
-                ROUND:&nbsp;
-                {
-                    round !== -1 ?
-                    round
-                    :
-                    "END"
-                }
-            </p>
-        </div>
+        <Box sx={{ textAlign: 'center' }}>
+            <Typography variant="body1">
+                ROUND: {round} / {rounds}
+            </Typography>
+        </Box>
     )
 }

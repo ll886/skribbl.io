@@ -30,7 +30,7 @@ interface Round {
   playerRounds: PlayerRound[];
 }
 
-interface Game {
+interface PublicGameInfo {
   id: string;
   rules: GameRules;
   hasStarted: boolean;
@@ -40,7 +40,11 @@ interface Game {
   currentRound: number;
   currentArtistId: string | undefined;
   pastWords: string[];
+}
+
+interface Game extends PublicGameInfo {
   roundHistory: Round[];
+  currentWord: string | undefined;
 }
 
 interface Games {
@@ -49,8 +53,10 @@ interface Games {
 
 interface GameEventHandler {
   tickTime: (message: number) => void;
-  sendMessage: (message: string) => void;
+  sendMessage: (text: string, color: string) => void;
   updateGameState: (gameState: Game) => void;
+  startPlayerRound: () => void;
+  sendPlayerGuessedCorrect: () => void;
   sendDrawWordInfo: (word: string, artistId: string) => void;
   sendGuessWordInfo: (wordLength: number, guesserIds: string[]) => void;
   sendPlayerRoundResult: (data: { [playerId: string]: number }) => void;
@@ -136,11 +142,12 @@ function getGames(): Games {
   return games;
 }
 
-function getGameState(gameId: string): Game {
+function getGameState(gameId: string): PublicGameInfo {
   if (!games.hasOwnProperty(gameId)) {
     throw new Error("invalid gameId");
   }
-  return games[gameId];
+  const { currentWord, roundHistory, ...filteredGame } = games[gameId];
+  return filteredGame;
 }
 
 function startGame(gameId: string, eventHandler: GameEventHandler): undefined {
@@ -149,11 +156,18 @@ function startGame(gameId: string, eventHandler: GameEventHandler): undefined {
     return;
   }
 
+  for (const playerId of games[gameId].playerOrder) {
+    games[gameId].players[playerId].points = 0;
+  }
+
   if (games[gameId].playerOrder.length > 1) {
     // recursively start rounds
     startRound(gameId, eventHandler);
   } else {
-    eventHandler.sendMessage("You need at least 2 players to start the game!");
+    eventHandler.sendMessage(
+      "You need at least 2 players to start the game!",
+      "red"
+    );
   }
 }
 
@@ -169,7 +183,7 @@ async function startRound(
   game.hasStarted = true;
   game.roundHistory.push({ playerRounds: [] });
   eventHandler.updateGameState(game);
-  eventHandler.sendMessage(`starting round ${game.currentRound}`);
+  eventHandler.sendMessage(`Starting round ${game.currentRound}!`, "blue");
 
   const playerOrder = [...game.playerOrder];
   for (let i = 0; i < playerOrder.length; i++) {
@@ -182,11 +196,12 @@ async function startRound(
     });
 
     const word = chooseEasyWord(game.pastWords);
-    game.pastWords.push(word);
+    game.currentWord = word;
+    eventHandler.startPlayerRound();
     eventHandler.sendDrawWordInfo(word, game.currentArtistId);
     eventHandler.sendGuessWordInfo(word.length, getGuesserIds(game));
-    eventHandler.sendMessage(`${game.currentArtistId} is drawing now!`);
-    eventHandler.sendMessage(`The word is ${word.length} letters`);
+    eventHandler.sendMessage(`${game.currentArtistId} is drawing now!`, "blue");
+    eventHandler.sendMessage(`The word is ${word.length} letters`, "blue");
 
     for (
       let timeRemaining = game.rules.drawTime;
@@ -199,6 +214,7 @@ async function startRound(
 
       evaluateCurrentPlayerRound(game, word, eventHandler);
       if (allCorrectInCurrentPlayerRound(game)) {
+        eventHandler.sendMessage("Everyone guessed the word!", "green");
         break;
       }
       eventHandler.tickTime(timeRemaining);
@@ -207,21 +223,22 @@ async function startRound(
 
     const playerPointsEarned = getPointsEarnedForPlayerRound(game);
     eventHandler.sendPlayerRoundResult(playerPointsEarned);
-    eventHandler.sendMessage(`The word was '${word}'`);
+    eventHandler.sendMessage(`The word was '${word}'`, "green");
     for (const [playerId, points] of Object.entries(playerPointsEarned)) {
       game.players[playerId].points += points;
-      eventHandler.sendMessage(`${playerId} earned ${points} points!`);
+      eventHandler.sendMessage(`${playerId} earned ${points} points!`, "green");
     }
     eventHandler.updateGameState(game);
 
-    for (let timeRemaining = 5; timeRemaining >= 0; timeRemaining--) {
+    for (let timeRemaining = 4; timeRemaining >= 0; timeRemaining--) {
       if (endGameIfEligible(game, eventHandler)) {
         return;
       }
-
       eventHandler.tickTime(timeRemaining);
       await wait(1);
     }
+
+    game.pastWords.push(word);
   }
 
   game.currentRound++;
@@ -256,7 +273,11 @@ function evaluateCurrentPlayerRound(
       !currentPlayerRound.playerCorrectGuessOrder.includes(playerGuess.playerId)
     ) {
       currentPlayerRound.playerCorrectGuessOrder.push(playerGuess.playerId);
-      eventHandler.sendMessage(`${playerGuess.playerId} guessed the word!`);
+      eventHandler.sendMessage(
+        `${playerGuess.playerId} guessed the word!`,
+        "green"
+      );
+      eventHandler.sendPlayerGuessedCorrect();
     }
   });
 }
@@ -321,21 +342,35 @@ function endGameIfEligible(
 function endGame(game: Game, eventHandler: GameEventHandler) {
   eventHandler.updateGameState(game);
   const playersArray = Object.values(game.players);
-  const player = playersArray.reduce((prevPlayer, currentPlayer) =>
-    prevPlayer.points > currentPlayer.points ? prevPlayer : currentPlayer
-  );
-  eventHandler.sendMessage(
-    `${player.id} won with a score of ${player.points}!`
-  );
+  const highestScore = Math.max(...playersArray.map(player => player.points));
+  const playersWithHighestScore = playersArray.filter(player => player.points === highestScore);
+
+  if (playersWithHighestScore.length === 1) {
+    const winner = playersWithHighestScore[0];
+    eventHandler.sendMessage(
+      `${winner.id} won with a score of ${winner.points}!`,
+      "orange"
+    );
+  } else {
+    const winners = playersWithHighestScore.map(player => player.id);
+    eventHandler.sendMessage(
+      `${winners.join(", ")} won with a score of ${highestScore}!`,
+      "orange"
+    );
+  }
   eventHandler.tickTime(0);
+  game.currentRound = 1;
+  game.roundHistory = [];
+  game.hasStarted = false;
+  eventHandler.updateGameState(game);
   eventHandler.endGame();
 }
 
-function recordPlayerMessage(
+function handlePlayerMessage(
   gameId: string,
   playerId: string,
-  message: string
-) {
+  message: { text: string; color: string }
+): { text: string; color: string } | undefined {
   if (!games.hasOwnProperty(gameId)) {
     throw new Error("invalid gameId");
   }
@@ -348,9 +383,14 @@ function recordPlayerMessage(
       currentRound.playerRounds[currentRound.playerRounds.length - 1];
     currentPlayerRound.playerGuesses.push({
       playerId: playerId,
-      guess: message,
+      guess: message.text,
     });
+
+    if (message.text.toLowerCase() === game.currentWord?.toLowerCase()) {
+      return undefined;
+    }
   }
+  return message;
 }
 
 export {
@@ -362,6 +402,7 @@ export {
   getGames,
   getGameState,
   startGame,
-  recordPlayerMessage,
+  handlePlayerMessage,
   GameEventHandler,
+  PublicGameInfo,
 };

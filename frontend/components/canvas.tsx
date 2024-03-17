@@ -1,6 +1,7 @@
 "use client";
 
 import { useDraw } from "@/hooks/useDraw";
+import { Box, Button } from "@mui/material";
 import { useEffect, useState } from "react";
 import { CompactPicker } from "react-color";
 
@@ -41,29 +42,27 @@ export default function Canvas({ socket }) {
 
   return (
     <>
-      <div className="w-full flex justify-center items-center mb-4">
-        <canvas
-          ref={canvasRef}
-          onMouseDown={onMouseDown}
-          width={750}
-          height={750}
-          className="border border-black rounded-md"
-        />
-      </div>
-      {
-        drawWord ?
-        <div className="w-full flex justify-center items-center">
-          <button
-            type="button"
-            className="p-2 rounded-md border border-black"
-            onClick={clear}
-          >
-            Clear canvas
-          </button>
-        </div>
-        :
-        <></>
-      }
+        <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: 4 }}>
+            <canvas
+                ref={canvasRef}
+                onMouseDown={onMouseDown}
+                width={750}
+                height={750}
+                style={{ border: '1px solid #ccc', borderRadius: '4px', boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)' }}
+            />
+        </Box>
+        {drawWord ? (
+            <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                <Button
+                    variant="contained"
+                    color="primary"
+                    sx={{ borderRadius: '4px', boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)' }}
+                    onClick={clear}
+                >
+                    Clear Canvas
+                </Button>
+            </Box>
+        ) : null}
     </>
   );
 }

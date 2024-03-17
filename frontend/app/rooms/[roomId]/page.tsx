@@ -12,6 +12,10 @@ import { generateGuestIdIfNull } from "@/app/names";
 import { Game } from "@/app/interfaces";
 import Word from "@/components/word";
 import Leaderboard from "@/components/leaderboard";
+import { getAudio } from "@/app/audio";
+import GameAudioPlayer from "@/components/game_audio_player";
+import Navbar from "@/components/navbar";
+import { Box, Button } from "@mui/material";
 
 function Page() {
   const { roomId } = useParams();
@@ -58,6 +62,8 @@ function Page() {
   const handleCopyLink = async () => {
     try {
       await navigator.clipboard.writeText(currentURL.current);
+      const audio = getAudio("click");
+      audio.play();
       console.log("Link copied to clipboard!");
       setIsLinkCopied(true);
 
@@ -70,6 +76,8 @@ function Page() {
   };
 
   const handleStartGame = () => {
+    const audio = getAudio("click");
+    audio.play();
     socket.emit("startGame");
   };
 
@@ -77,37 +85,56 @@ function Page() {
   const isGameNotStarted = !gameState?.hasStarted;
 
   return (
-    <div className="flex h-screen bg-white">
-      <div className="flex-grow">
-        <Leaderboard gameState={gameState} />
-      </div>
-      <div className="flex-grow p-4">
-        <Word socket={socket} />
-        <Canvas socket={socket} />
-      </div>
-      <div className="w-1/4 p-4">
-        <Round gameState={gameState} />
-        <Chat socket={socket} />
-
-        <div>
-          <button onClick={handleCopyLink} className="bg-blue-500 text-white">
-            {isLinkCopied ? "Link Copied!" : "Copy invite link!"}
-          </button>
+    <>
+      <Navbar />
+      <div className="flex h-screen bg-white">
+        <div className="flex-grow px-4">
+          <Leaderboard gameState={gameState} />
         </div>
+        <div className="flex-grow px-4">
+          <Word socket={socket} />
+          <Canvas socket={socket} />
+        </div>
+        <div className="w-1/4 px-4">
+          <Round socket={socket} />
+          <Timer socket={socket} />
+          <Chat socket={socket} />
 
-        {isHost && isGameNotStarted && (
-          <div>
-            <button
-              onClick={handleStartGame}
-              className="bg-blue-500 text-white"
-            >
-              Start Game
-            </button>
-          </div>
-        )}
-        <Timer socket={socket} />
+          <br></br>
+
+          <Box display="flex" gap={2}>
+            <Box>
+              <Button
+                  onClick={handleCopyLink}
+                  variant="contained"
+                  color="primary"
+                  disabled={isLinkCopied}
+                  style={{ backgroundColor: '#2196f3', color: 'white' }}
+              >
+                  {isLinkCopied ? "Link Copied!" : "Copy invite link!"}
+              </Button>
+            </Box>
+
+            <br></br>
+
+            {isHost && isGameNotStarted && (
+              <Box>
+                <Button
+                    onClick={handleStartGame}
+                    variant="contained"
+                    color="primary"
+                    style={{ backgroundColor: '#2196f3' }}
+                >
+                    Start Game
+                </Button>
+              </Box>
+            )}
+          </Box>
+
+          <GameAudioPlayer socket={socket} />
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
