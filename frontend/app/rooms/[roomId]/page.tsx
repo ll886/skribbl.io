@@ -14,6 +14,7 @@ import Word from "@/components/word";
 import Leaderboard from "@/components/leaderboard";
 import { getAudio } from "@/app/audio";
 import GameAudioPlayer from "@/components/game_audio_player";
+import Navbar from "@/components/navbar";
 
 function Page() {
   const { roomId } = useParams();
@@ -83,38 +84,41 @@ function Page() {
   const isGameNotStarted = !gameState?.hasStarted;
 
   return (
-    <div className="flex h-screen bg-white">
-      <div className="flex-grow p-4">
-        <Leaderboard gameState={gameState} />
-      </div>
-      <div className="flex-grow p-4">
-        <Word socket={socket} />
-        <Canvas socket={socket} />
-      </div>
-      <div className="w-1/4 p-4">
-        <Round socket={socket} />
-        <Timer socket={socket} />
-        <Chat socket={socket} />
-
-        <div>
-          <button onClick={handleCopyLink} className="bg-blue-500 text-white">
-            {isLinkCopied ? "Link Copied!" : "Copy invite link!"}
-          </button>
+    <>
+      <Navbar />
+      <div className="flex h-screen bg-white">
+        <div className="flex-grow ph-4">
+          <Leaderboard gameState={gameState} />
         </div>
+        <div className="flex-grow ph-4">
+          <Word socket={socket} />
+          <Canvas socket={socket} />
+        </div>
+        <div className="w-1/4 ph-4">
+          <Round socket={socket} />
+          <Timer socket={socket} />
+          <Chat socket={socket} />
 
-        {isHost && isGameNotStarted && (
           <div>
-            <button
-              onClick={handleStartGame}
-              className="bg-blue-500 text-white"
-            >
-              Start Game
+            <button onClick={handleCopyLink} className="bg-blue-500 text-white">
+              {isLinkCopied ? "Link Copied!" : "Copy invite link!"}
             </button>
           </div>
-        )}
-        <GameAudioPlayer socket={socket} />
+
+          {isHost && isGameNotStarted && (
+            <div>
+              <button
+                onClick={handleStartGame}
+                className="bg-blue-500 text-white"
+              >
+                Start Game
+              </button>
+            </div>
+          )}
+          <GameAudioPlayer socket={socket} />
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 

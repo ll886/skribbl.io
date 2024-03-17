@@ -4,9 +4,13 @@ import React, { useEffect, useState } from 'react';
 import { AppBar, Button, Toolbar, Link } from '@mui/material';
 import { home, login, signup } from '@/links/links';
 import { serverUrl } from '@/app/config';
+import { usePathname, useRouter } from 'next/navigation';
 
 
 export default function Navbar() {
+    const router = useRouter()
+    const pathName = usePathname()
+    
     const [loggedin, setLoggedin] = useState(false)
 
     useEffect(() => {
@@ -31,6 +35,12 @@ export default function Navbar() {
                 "Content-Type": 'application/json',
             },
             credentials: 'include',
+        }).then(() => {
+            if (pathName !== home) {
+                router.push(home)
+                return
+            }
+            window.location.reload()
         }).catch((err) => {
             console.error(err)
         })

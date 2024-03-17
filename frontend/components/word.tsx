@@ -1,3 +1,4 @@
+import { Box, Typography } from "@mui/material"
 import { useEffect, useState } from "react"
 
 export default function Word({ socket }) {
@@ -25,16 +26,10 @@ export default function Word({ socket }) {
     }, [])
 
     return (
-        <div className="w-full">
-            <p className="text-center">
-                Word:&nbsp;
-                {
-                    drawWord ? 
-                    drawWord
-                    :
-                    guessWord
-                }
-            </p>
-        </div>
+        <Box sx={{ width: '100%' }}>
+            <Typography variant="h6" align="center">
+                Word: {drawWord ? drawWord : guessWord}
+            </Typography>
+        </Box>
     )
 }
