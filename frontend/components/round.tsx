@@ -1,5 +1,6 @@
 "use client";
 
+import { Box, Typography } from "@mui/material";
 import { useEffect, useState } from "react"
 
 export default function Round({ socket }) {
@@ -18,10 +19,10 @@ export default function Round({ socket }) {
     }, [socket])
 
     return (
-        <div>
-            <p>
+        <Box sx={{ textAlign: 'center' }}>
+            <Typography variant="body1">
                 ROUND: {round} / {rounds}
-            </p>
-        </div>
+            </Typography>
+        </Box>
     )
 }
