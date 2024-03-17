@@ -108,8 +108,8 @@ function Page() {
                   onClick={handleCopyLink}
                   variant="contained"
                   color="primary"
-                  style={{ backgroundColor: '#2196f3', color: 'white' }}
                   disabled={isLinkCopied}
+                  style={{ backgroundColor: '#2196f3', color: 'white' }}
               >
                   {isLinkCopied ? "Link Copied!" : "Copy invite link!"}
               </Button>
