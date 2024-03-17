@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "dev:deploy": "pm2 start npm --name \"frontend\" -- run dev",
+    "devwatch:deploy": "pm2 start npm --name \"frontend\" -- run dev --watch",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"

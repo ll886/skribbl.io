@@ -8,7 +8,8 @@
     "build": "rm -rf out && mkdir out && tsc",
     "start": "node out/server.js",
     "watch": "npm run build && tsc-watch --onSuccess \"npm run start\"",
-    "start:deploy": "npm run build && cd out && pm2 start server.js --name \"backend\""
+    "start:deploy": "npm run build && cd out && pm2 start server.js --name \"backend\"",
+    "watch:deploy": "npm run build && cd out && pm2 start server.js --name \"backend\" --watch"
   },
   "type": "module",
   "author": "",
