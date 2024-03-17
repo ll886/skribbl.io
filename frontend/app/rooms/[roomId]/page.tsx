@@ -15,6 +15,7 @@ import Leaderboard from "@/components/leaderboard";
 import { getAudio } from "@/app/audio";
 import GameAudioPlayer from "@/components/game_audio_player";
 import Navbar from "@/components/navbar";
+import { Box, Button } from "@mui/material";
 
 function Page() {
   const { roomId } = useParams();
@@ -99,22 +100,37 @@ function Page() {
           <Timer socket={socket} />
           <Chat socket={socket} />
 
-          <div>
-            <button onClick={handleCopyLink} className="bg-blue-500 text-white">
-              {isLinkCopied ? "Link Copied!" : "Copy invite link!"}
-            </button>
-          </div>
+          <br></br>
 
-          {isHost && isGameNotStarted && (
-            <div>
-              <button
-                onClick={handleStartGame}
-                className="bg-blue-500 text-white"
+          <Box display="flex" gap={2}>
+            <Box>
+              <Button
+                  onClick={handleCopyLink}
+                  variant="contained"
+                  color="primary"
+                  style={{ backgroundColor: '#2196f3', color: 'white' }}
+                  disabled={isLinkCopied}
               >
-                Start Game
-              </button>
-            </div>
-          )}
+                  {isLinkCopied ? "Link Copied!" : "Copy invite link!"}
+              </Button>
+            </Box>
+
+            <br></br>
+
+            {isHost && isGameNotStarted && (
+              <Box>
+                <Button
+                    onClick={handleStartGame}
+                    variant="contained"
+                    color="primary"
+                    style={{ backgroundColor: '#2196f3' }}
+                >
+                    Start Game
+                </Button>
+              </Box>
+            )}
+          </Box>
+
           <GameAudioPlayer socket={socket} />
         </div>
       </div>
