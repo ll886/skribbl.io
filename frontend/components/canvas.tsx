@@ -13,10 +13,6 @@ const page: FC<{}> = ({socket}) => {
   useEffect(() => {
     const ctx = canvasRef.current?.getContext('2d')
 
-    socket.on('get-canvas-state', () => {
-      if (!canvasRef.current?.toDataURL()) return
-    })
-
     socket.on('canvasStateFromServer', (state: string) => {
       const img = new Image()
       img.src = state
