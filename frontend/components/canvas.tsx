@@ -1,90 +1,131 @@
-'use client'
+"use client";
 
-import { FC, useEffect, useState } from 'react'
-import { useDraw } from '../hooks/useDraw'
-import { CompactPicker } from 'react-color'
-import { drawLine } from '../util/drawLine'
+import { drawLine } from "../util/drawLine";
 
-const page: FC<{}> = ({socket}) => {
-  const [color, setColor] = useState<string>('#000');
+import { useDraw } from "@/hooks/useDraw";
+import { Box, Button } from "@mui/material";
+import { useEffect, useState } from "react";
+import { CompactPicker } from "react-color";
+
+export default function Canvas({ socket }) {
+  const [color, setColor] = useState<string>("#000");
   const [width, setWidth] = useState<number>(5);
-  const { canvasRef, onMouseDown, clear } = useDraw(createLine)
+  const { canvasRef, onMouseDown, clear } = useDraw(createLine);
+  const [drawWord, setDrawWord] = useState("");
 
   useEffect(() => {
-    const ctx = canvasRef.current?.getContext('2d')
+    socket.on("updateGameState", () => {
+      setDrawWord("");
+    });
 
-    socket.on('canvasStateFromServer', (state: string) => {
-      const img = new Image()
-      img.src = state
+    socket.on("drawWordInfo", (word: string) => {
+      setDrawWord(word);
+    });
+  });
+
+  useEffect(() => {
+    const ctx = canvasRef.current?.getContext("2d");
+
+    socket.on("canvasStateFromServer", (state: string) => {
+      const img = new Image();
+      img.src = state;
       img.onload = () => {
-        ctx?.drawImage(img, 0, 0)
+        ctx?.drawImage(img, 0, 0);
+      };
+    });
+
+    socket.on(
+      "drawLine",
+      (prevPoint: Point, currentPoint: Point, color: string, width: number) => {
+        if (!ctx) return console.log("no ctx here");
+        drawLine({ prevPoint, currentPoint, ctx, color, width });
       }
-    })
+    );
 
-    socket.on('drawLine', (prevPoint: Point, currentPoint: Point, color: string, width: number) => {
-      if (!ctx) return console.log('no ctx here')
-      drawLine({ prevPoint, currentPoint, ctx, color, width })
-    })
-
-    socket.on('clear', clear)
+    socket.on("clear", clear);
 
     return () => {
-      socket.off('drawLine')
-      socket.off('canvasStateFromServer')
-      socket.off('clear')
-    }
-  }, [canvasRef])
+      socket.off("drawLine");
+      socket.off("canvasStateFromServer");
+      socket.off("clear");
+    };
+  }, [canvasRef]);
 
   function createLine({ prevPoint, currentPoint, ctx }: Draw) {
-    socket.emit('drawLine', prevPoint, currentPoint, color, width)
-    drawLine({ prevPoint, currentPoint, ctx, color, width })
-    socket.emit('canvasState', canvasRef.current?.toDataURL())
+    socket.emit("drawLine", prevPoint, currentPoint, color, width);
+    drawLine({ prevPoint, currentPoint, ctx, color, width });
+    socket.emit("canvasState", canvasRef.current?.toDataURL());
   }
 
   return (
     <>
-      <div className="w-full flex justify-center items-center mb-4">
+      <Box
+        sx={{
+          width: "100%",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          marginBottom: 4,
+        }}
+      >
         <canvas
           ref={canvasRef}
           onMouseDown={onMouseDown}
           width={750}
           height={750}
-          className="border border-black rounded-md"
+          style={{
+            border: "1px solid #ccc",
+            borderRadius: "4px",
+            boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
+          }}
         />
-      </div>
-      <div className="w-full flex justify-center items-center">
-        <div>
-          <CompactPicker 
-            color={color} 
-            onChange={(e) => {
-              setColor(e.hex)
-              setWidth(5)
+      </Box>
+      {drawWord ? (
+        <Box
+          sx={{
+            width: "100%",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <div>
+            <CompactPicker
+              color={color}
+              onChange={(e) => {
+                setColor(e.hex);
+                setWidth(5);
+              }}
+            />
+          </div>
+          <Button
+            variant="contained"
+            color="primary"
+            sx={{
+              borderRadius: "4px",
+              boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
             }}
-          />
-        </div>
-        <div>
-          <button
-            type="button"
-            className="p-2 rounded-md border border-black"
+            onClick={socket.emit("clear")}
+          >
+            Clear Canvas
+          </Button>
+
+          <Button
+            variant="contained"
+            color="primary"
+            sx={{
+              borderRadius: "4px",
+              boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
+            }}
             onClick={() => {
-              setColor('#FFF')
-              setWidth(20)
+              setColor("#FFF");
+              setWidth(20);
             }}
           >
             Eraser
-          </button>
-          <br></br>
-          <button
-            type="button"
-            className="p-2 rounded-md border border-black"
-            onClick={() => socket.emit('clear', clear)}
-          >
-            Clear canvas
-          </button>
-        </div>
-      </div>
+          </Button>
+        </Box>
+      ) : null}
     </>
-  )
+  );
 }
-
-export default page

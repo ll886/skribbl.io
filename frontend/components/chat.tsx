@@ -1,12 +1,20 @@
-import { useState, useEffect, ChangeEvent, KeyboardEvent } from "react";
+import { useState, useEffect, ChangeEvent, KeyboardEvent, useRef, useLayoutEffect } from "react";
 import "./chat.css";
+import { Box, Button, TextField, Typography } from "@mui/material";
 
 export default function Chat({ socket }) {
-  const [messages, setMessages] = useState<string[]>([]);
+  const [messages, setMessages] = useState<{ text: string, color: string }[]>([]);
   const [textBoxVal, setTextBoxVal] = useState<string>("");
+  const chatBoxRef = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    if (chatBoxRef.current) {
+      chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
+    }
+  }, [messages]);
 
   useEffect(() => {
-    socket.on("sendMessage", (message: string) => {
+    socket.on("sendMessage", (message: { text: string, color: string }) => {
       setMessages((prevMessages) => [...prevMessages, message]);
     });
   }, []);
@@ -25,30 +33,29 @@ export default function Chat({ socket }) {
   const handleSubmit = () => {
     if (textBoxVal.trim() !== "") {
       setTextBoxVal("");
-      socket.emit("sendMessage", textBoxVal);
+      socket.emit("sendMessage", { text: textBoxVal, color: "black" });
     }
   };
 
   return (
-    <div>
-      <div className="chat-box">
-        {messages.map((message, index) => (
-          <div key={index} className="message">
-            {message}
-          </div>
-        ))}
-      </div>
-      <div className="text-box">
-        <input
-          type="text"
-          value={textBoxVal}
-          onChange={handleInputChange}
-          onKeyPress={handleKeyPress}
-          placeholder="Type your guess here..."
-        />
-        <div className="character-count">{textBoxVal.length}</div>
-        <button onClick={handleSubmit}>Send</button>
-      </div>
-    </div>
+    <Box>
+      <Box ref={chatBoxRef} sx={{ p: 2, marginBottom: 2, border: '1px solid #ccc', borderRadius: '4px', maxHeight: '200px', overflowY: 'auto' }}>
+          {messages.map((message, index) => (
+              <Typography key={index} variant="body1" sx={{ color: message.color || "black" }}>{message.text}</Typography>
+          ))}
+      </Box>
+      <Box display="flex" alignItems="center" gap={1}>
+          <TextField
+              type="text"
+              value={textBoxVal}
+              onChange={handleInputChange}
+              onKeyPress={handleKeyPress}
+              placeholder="Type your guess here..."
+              fullWidth
+          />
+          <Typography variant="body2" sx={{ color: 'text.secondary' }}>{textBoxVal.length}</Typography>
+          <Button variant="outlined" onClick={handleSubmit}>Send</Button>
+      </Box>
+    </Box>
   );
 }
