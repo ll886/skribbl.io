@@ -1,7 +1,8 @@
 import { useState, useEffect, ChangeEvent, KeyboardEvent, useRef, useLayoutEffect } from "react";
 import "./chat.css";
+import { Socket } from "socket.io-client";
 
-export default function Chat({ socket }) {
+export default function Chat({ socket }: {socket: Socket}) {
   const [messages, setMessages] = useState<string[]>([]);
   const [textBoxVal, setTextBoxVal] = useState<string>("");
   const chatBoxRef = useRef<HTMLDivElement>(null);

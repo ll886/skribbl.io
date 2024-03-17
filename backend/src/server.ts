@@ -1,3 +1,4 @@
+import dotenv from "dotenv";
 import express, { CookieOptions } from "express";
 import sqlite3 from "sqlite3";
 import { open } from "sqlite";
@@ -6,29 +7,34 @@ import cors from "cors";
 import * as argon2 from "argon2";
 import cookieParser from "cookie-parser";
 import crypto from "crypto";
-import { createServer } from 'node:http';
-import { initSocket } from './socket.js';
-import roomsRouter from './routes.rooms.js';
+import { createServer } from "node:http";
+import { initSocket } from "./socket.js";
+import roomsRouter from "./routes.rooms.js";
 import { tokenStorage } from "./user.js";
 
+dotenv.config();
 // init app
-const port = 3001
-
+const port = 3001;
 const host = "localhost";
 const protocol = "http";
+const clientProtocol = process.env.CLIENT_PROTOCOL || "http";
+const clientHost = process.env.CLIENT_HOST || "localhost";
+const clientPort = process.env.CLIENT_PORT || 3000;
 const app = express();
 const server = createServer(app);
 initSocket(server);
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors({
-  origin: [
-    "http://localhost",
-    "http://localhost:3000",
-  ],
-  credentials: true,
-  optionsSuccessStatus: 200,
-}))
+app.use(
+  cors({
+    origin: [
+      `${clientProtocol}://${clientHost}`,
+      `${clientProtocol}://${clientHost}:${clientPort}`,
+    ],
+    credentials: true,
+    optionsSuccessStatus: 200,
+  })
+);
 
 // app routes
 app.use("/api/rooms", roomsRouter);
@@ -36,14 +42,14 @@ app.use("/api/rooms", roomsRouter);
 let cookieOptions: CookieOptions = {
   httpOnly: true,
   secure: true,
-  sameSite: 'lax',
+  sameSite: "lax",
 };
 
 let __dirname = url.fileURLToPath(new URL("..", import.meta.url));
 let dbfile = `${__dirname}database.db`;
 let db = await open({
-    filename: dbfile,
-    driver: sqlite3.Database,
+  filename: dbfile,
+  driver: sqlite3.Database,
 });
 await db.get("PRAGMA foreign_keys = ON");
 
@@ -51,101 +57,105 @@ function makeToken() {
   return crypto.randomBytes(32).toString("hex");
 }
 
-app.get('/loggedin', async (req, res) => {
+app.get("/loggedin", async (req, res) => {
   const token = req.cookies.token;
 
   if (token === null || !tokenStorage.hasOwnProperty(token)) {
     return res.send(false);
   }
 
-  res.send(true)
-})
+  res.send(true);
+});
 
-app.post('/signup', async (req, res) => {
-  const body = req.body
+app.post("/signup", async (req, res) => {
+  const body = req.body;
 
-  const email: string = body.email
-  const username: string  = body.username
-  const password: string  = body.password
-  const passwordConfirmation: string  = body.passwordConfirmation
+  const email: string = body.email;
+  const username: string = body.username;
+  const password: string = body.password;
+  const passwordConfirmation: string = body.passwordConfirmation;
 
-  let errors: string[] = []
+  let errors: string[] = [];
 
-  let emailDatabase = await db.get('SELECT * FROM users WHERE email = ?', [email])
-  emailDatabase = emailDatabase ? emailDatabase['email'] : undefined
+  let emailDatabase = await db.get("SELECT * FROM users WHERE email = ?", [
+    email,
+  ]);
+  emailDatabase = emailDatabase ? emailDatabase["email"] : undefined;
 
-  let usernameDatabase = await db.get('SELECT * FROM users WHERE username = ?', [username])
-  usernameDatabase = usernameDatabase ? usernameDatabase['username'] : undefined
+  let usernameDatabase = await db.get(
+    "SELECT * FROM users WHERE username = ?",
+    [username]
+  );
+  usernameDatabase = usernameDatabase
+    ? usernameDatabase["username"]
+    : undefined;
 
   if (emailDatabase === email) {
-    errors.push("Email is already in use")
+    errors.push("Email is already in use");
   }
 
   if (usernameDatabase === username) {
-    errors.push("Username is already in use")
+    errors.push("Username is already in use");
   }
 
   if (password !== passwordConfirmation) {
-    errors.push("Passwords do not match")
+    errors.push("Passwords do not match");
   }
 
   if (errors.length > 0) {
     res.status(400).send({
-      errors: errors
-    })
+      errors: errors,
+    });
   } else {
-    const passwordHash = await argon2.hash(password)
+    const passwordHash = await argon2.hash(password);
 
     await db.run(
-      'INSERT INTO users(email, username, password) VALUES(?, ?, ?)', 
+      "INSERT INTO users(email, username, password) VALUES(?, ?, ?)",
       [email, username, passwordHash]
-    )
+    );
 
-    res.sendStatus(200)
+    res.sendStatus(200);
   }
-})
+});
 
 app.post("/login", async (req, res) => {
-  const body = req.body
+  const body = req.body;
 
-  const email: string = body.email
-  const password: string = body.password
+  const email: string = body.email;
+  const password: string = body.password;
 
-  let errors: string[] = []
+  let errors: string[] = [];
 
-  let user = await db.get('SELECT * FROM users WHERE email = ?', [email])
+  let user = await db.get("SELECT * FROM users WHERE email = ?", [email]);
 
   if (!user) {
-    errors.push("Email is invalid")
+    errors.push("Email is invalid");
   } else if (!(await argon2.verify(user.password, password))) {
-    errors.push("Password is invalid")
+    errors.push("Password is invalid");
   }
 
   if (errors.length > 0) {
     res.status(400).send({
-      errors: errors
-    })
+      errors: errors,
+    });
   } else {
-    const loginToken = makeToken()
-    tokenStorage[loginToken] = user.id
-    return res.cookie("token", loginToken, cookieOptions).json()
+    const loginToken = makeToken();
+    tokenStorage[loginToken] = user.id;
+    return res.cookie("token", loginToken, cookieOptions).json();
   }
-})
+});
 
 app.post("/logout", (req, res) => {
-  const token = req.cookies.token
+  const token = req.cookies.token;
 
   if (token !== null && tokenStorage.hasOwnProperty(token)) {
-    delete tokenStorage[token]
-    res.clearCookie("token", cookieOptions).json()
+    delete tokenStorage[token];
+    res.clearCookie("token", cookieOptions).json();
   }
-})
+});
 
 server.listen(port, () => {
   console.log(`${protocol}://${host}:${port}`);
 });
 
-
-export {
-  db,
-};
+export { db };

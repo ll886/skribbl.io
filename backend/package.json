@@ -6,8 +6,10 @@
   "scripts": {
     "setup": "rm -f database.db && sqlite3 database.db < setup.sql",
     "build": "rm -rf out && mkdir out && tsc",
-    "start": "cd out && node server.js",
-    "watch": "npm run build && tsc-watch --onSuccess \"npm run start\""
+    "start": "node out/server.js",
+    "watch": "npm run build && tsc-watch --onSuccess \"npm run start\"",
+    "build:deploy": "npm run build && cd ../front && npm run build && mv .next ../back/out/public",
+    "start:deploy": "cd out && pm2 start server.js --port 3000"
   },
   "type": "module",
   "author": "",
@@ -16,6 +18,7 @@
     "argon2": "^0.40.1",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
     "express": "^4.18.2",
     "socket.io": "^4.7.4",
     "sqlite": "^5.1.1",

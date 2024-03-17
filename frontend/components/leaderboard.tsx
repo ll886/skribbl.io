@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
+import { Game } from "@/app/interfaces"
 
-export default function Leaderboard({ gameState }) {
+export default function Leaderboard({ gameState }: {gameState: Game | null}) {
     const [players, setPlayers] = useState<any>([])
 
     useEffect(() => {

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
+import { Socket } from "socket.io-client"
 
-export default function Word({ socket }) {
+export default function Word({ socket }: {socket: Socket}) {
     const [drawWord, setDrawWord] = useState<string>("")
     const [guessWord, setGuessWord] = useState<string>("")
 
