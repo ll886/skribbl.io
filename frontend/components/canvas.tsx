@@ -59,18 +59,18 @@ const page: FC<{}> = ({socket}) => {
               setWidth(5)
             }}
           />
-          </div>
-          <div>
-            <button
-              type="button"
-              className="p-2 rounded-md border border-black"
-              onClick={() => {
-                setColor('#FFF')
-                setWidth(20)
-              }}
-            >
-              Eraser
-            </button>
+        </div>
+        <div>
+          <button
+            type="button"
+            className="p-2 rounded-md border border-black"
+            onClick={() => {
+              setColor('#FFF')
+              setWidth(20)
+            }}
+          >
+            Eraser
+          </button>
           <br></br>
           <button
             type="button"
