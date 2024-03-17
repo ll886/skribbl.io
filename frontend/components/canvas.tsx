@@ -6,9 +6,10 @@ import { useDraw } from "@/hooks/useDraw";
 import { Box, Button } from "@mui/material";
 import { useEffect, useState } from "react";
 import { CompactPicker } from "react-color";
+import { Socket } from "socket.io-client";
 
-export default function Canvas({ socket }) {
-  const [color, setColor] = useState<string>("#000");
+export default function Canvas({ socket }: {socket: Socket}) {
+  const [color, setColor] = useState<string>('#000');
   const [width, setWidth] = useState<number>(5);
   const { canvasRef, onMouseDown, clear } = useDraw(createLine);
   const [drawWord, setDrawWord] = useState("");

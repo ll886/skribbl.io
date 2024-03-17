@@ -23,4 +23,7 @@ export interface Game {
   players: GamePlayers;
   playerOrder: string[];
   hostPlayerId: string | undefined;
+  currentRound: number;
+  currentArtistId: string | undefined;
+  pastWords: string[];
 }

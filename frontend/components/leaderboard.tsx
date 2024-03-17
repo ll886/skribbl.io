@@ -1,7 +1,8 @@
 import { Box, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
 import { useEffect, useState } from "react"
+import { Game } from "@/app/interfaces"
 
-export default function Leaderboard({ gameState }) {
+export default function Leaderboard({ gameState }: {gameState: Game | null}) {
     const [players, setPlayers] = useState<any>([])
 
     useEffect(() => {

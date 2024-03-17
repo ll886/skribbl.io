@@ -15,7 +15,7 @@ export default function Navbar() {
 
     useEffect(() => {
         const loggedin = async () => {
-            await fetch(`${serverUrl}/loggedin`, {
+            await fetch(`${serverUrl}/api/loggedin/`, {
                 credentials: "include",
             }).then(async (res) => {
                 const json: boolean = await res.json()
@@ -29,7 +29,7 @@ export default function Navbar() {
     }, [])
 
     const logout = async () => {
-        await fetch(`${serverUrl}/logout`, {
+        await fetch(`${serverUrl}/api/logout/`, {
             method: 'POST',
             headers: {
                 "Content-Type": 'application/json',
