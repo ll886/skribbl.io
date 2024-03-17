@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "dev:deploy": "cd out && pm2 start npm --name \"frontend\" -- dev",
+    "dev:deploy": "pm2 start npm --name \"frontend\" -- dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
