@@ -84,7 +84,7 @@ function Page() {
 
   return (
     <div className="flex h-screen bg-white">
-      <div className="flex-grow">
+      <div className="flex-grow p-4">
         <Leaderboard gameState={gameState} />
       </div>
       <div className="flex-grow p-4">
@@ -92,7 +92,7 @@ function Page() {
         <Canvas socket={socket} />
       </div>
       <div className="w-1/4 p-4">
-        <Round gameState={gameState} />
+        <Round socket={socket} />
         <Chat socket={socket} />
 
         <div>
