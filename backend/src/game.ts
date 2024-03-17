@@ -22,6 +22,7 @@ interface Game {
   hasStarted: boolean;
   players: GamePlayers;
   playerOrder: string[];
+  canvasState: string;
 }
 
 interface Games {
@@ -99,6 +100,10 @@ function getGameState(gameId: string): Game {
   return games[gameId];
 }
 
+function storeCanvasState(gameId: string, state: string): void {
+  games[gameId].canvasState = state;
+}
+
 export {
   Player,
   Game,
@@ -107,4 +112,5 @@ export {
   removePlayerFromGame,
   getGames,
   getGameState,
+  storeCanvasState,
 };

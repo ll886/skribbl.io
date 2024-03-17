@@ -6,7 +6,9 @@ import { ChromePicker } from 'react-color'
 
 import { io } from 'socket.io-client'
 import { drawLine } from '../util/drawLine'
-const socket = io('http://localhost:3001')
+
+// temporary holder, we can pass this socket in line #21
+// const socket = io('http://localhost:3001')
 
 interface pageProps {}
 
@@ -16,22 +18,19 @@ type DrawLineProps = {
   color: string
 }
 
-const page: FC<pageProps> = () => {
+const page: FC<pageProps> = ({socket}) => {
   const [color, setColor] = useState<string>('#000')
   const { canvasRef, onMouseDown, clear } = useDraw(createLine)
 
   useEffect(() => {
     const ctx = canvasRef.current?.getContext('2d')
 
-    socket.emit('client-ready')
-
     socket.on('get-canvas-state', () => {
       if (!canvasRef.current?.toDataURL()) return
       console.log('sending canvas state')
-      socket.emit('canvas-state', canvasRef.current.toDataURL())
     })
 
-    socket.on('canvas-state-from-server', (state: string) => {
+    socket.on('canvasStateFromServer', (state: string) => {
       console.log('I received the state')
       const img = new Image()
       img.src = state
@@ -40,7 +39,7 @@ const page: FC<pageProps> = () => {
       }
     })
 
-    socket.on('draw-line', ({ prevPoint, currentPoint, color }: DrawLineProps) => {
+    socket.on('drawLine', (prevPoint: Point, currentPoint: Point, color: string) => {
       if (!ctx) return console.log('no ctx here')
       drawLine({ prevPoint, currentPoint, ctx, color })
     })
@@ -48,16 +47,17 @@ const page: FC<pageProps> = () => {
     socket.on('clear', clear)
 
     return () => {
-      socket.off('draw-line')
+      socket.off('drawLine')
       socket.off('get-canvas-state')
-      socket.off('canvas-state-from-server')
+      socket.off('canvasStateFromServer')
       socket.off('clear')
     }
   }, [canvasRef])
 
   function createLine({ prevPoint, currentPoint, ctx }: Draw) {
-    socket.emit('draw-line', { prevPoint, currentPoint, color })
+    socket.emit('drawLine', prevPoint, currentPoint, color)
     drawLine({ prevPoint, currentPoint, ctx, color })
+    socket.emit('canvasState', canvasRef.current?.toDataURL())
   }
 
   return (
@@ -68,7 +68,7 @@ const page: FC<pageProps> = () => {
           type='button'
           className='p-2 rounded-md border border-black'
           onClick={() => socket.emit('clear')}>
-          Clear canvas
+          Clear Drawing
         </button>
       </div>
       <canvas

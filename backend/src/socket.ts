@@ -7,18 +7,25 @@ import {
   addPlayerToGame,
   removePlayerFromGame,
   getGameState,
+  storeCanvasState,
 } from "./game.js";
 import { getUserByToken } from "./user.js";
+
+type Point = { x: number; y: number }
 
 interface ServerToClientEvents {
   updateGameState: (gameState: Game) => void;
   joinGameError: () => void;
   sendMessage: (message: string) => void;
+  drawLine: (prevPoint: Point, currentPoint: Point, color: string) => void;
+  canvasStateFromServer: (state: string) => void;
 }
 
 interface ClientToServerEvents {
   joinRoom: (gameId: string) => void;
   sendMessage: (message: string) => void;
+  drawLine: (prevPoint: Point, currentPoint: Point, color: string) => void;
+  canvasState: (state: string) => void;
 }
 
 interface InterServerEvents {}
@@ -34,7 +41,11 @@ function initSocket(server: HttpServer) {
     ServerToClientEvents,
     InterServerEvents,
     SocketData
-  >(server, { cookie: true });
+  >(server, {
+    cookie: true,
+    cors: {
+    origin: '*'
+  }, });
 
   io.on("connection", async (socket) => {
     console.log("a user connected");
@@ -62,6 +73,7 @@ function initSocket(server: HttpServer) {
         const gameState = getGameState(gameId);
         io.to(gameId).emit("sendMessage", `${player.id} has joined the game`);
         io.to(gameId).emit("updateGameState", gameState);
+        io.to(socket.id).emit("canvasStateFromServer", gameState.canvasState);
       } catch (e) {
         console.log(e);
         io.to(socket.id).emit("joinGameError");
@@ -95,7 +107,21 @@ function initSocket(server: HttpServer) {
         console.log("error sending message due to missing info");
       }
     });
+
+    socket.on("drawLine", ( prevPoint, currentPoint, color) => {
+      const gameId = socket.data.gameId;
+      if (gameId !== null) {
+        socket.to(gameId).emit("drawLine",  prevPoint, currentPoint, color);
+      }
+    });
+
+    socket.on('canvasState', (state) => {
+      const gameId = socket.data.gameId;
+      console.log('received canvas state')
+      storeCanvasState(gameId, state);
+    })
   });
 }
+
 
 export { initSocket };

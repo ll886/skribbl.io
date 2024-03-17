@@ -37,7 +37,7 @@ function Page() {
 
   return (
     <div className="flex h-screen bg-white">
-      <div className="flex-grow p-4">{Canvas()}</div>
+      <div className="flex-grow p-4">{<Canvas socket={socket} />}</div>
       <div className="w-1/4 p-4">
         <Chat socket={socket} />
       </div>
