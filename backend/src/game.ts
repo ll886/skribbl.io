@@ -199,6 +199,7 @@ async function startRound(
 
       evaluateCurrentPlayerRound(game, word, eventHandler);
       if (allCorrectInCurrentPlayerRound(game)) {
+        eventHandler.sendMessage("Everyone guessed the word!")
         break;
       }
       eventHandler.tickTime(timeRemaining);
