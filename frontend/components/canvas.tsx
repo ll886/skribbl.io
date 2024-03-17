@@ -70,7 +70,7 @@ export default function Canvas({ socket }) {
       >
         <canvas
           ref={canvasRef}
-          onMouseDown={onMouseDown}
+          onMouseDown={drawWord ? onMouseDown : () => {}}
           width={750}
           height={750}
           style={{
@@ -99,19 +99,19 @@ export default function Canvas({ socket }) {
             />
           </div>
           <Button
-            variant="contained"
+            variant="outlined"
             color="primary"
             sx={{
               borderRadius: "4px",
               boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
             }}
-            onClick={socket.emit("clear")}
+            onClick={() => socket.emit("clear")}
           >
             Clear Canvas
           </Button>
 
           <Button
-            variant="contained"
+            variant="outlined"
             color="primary"
             sx={{
               borderRadius: "4px",

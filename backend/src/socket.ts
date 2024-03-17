@@ -143,6 +143,7 @@ function initSocket(server: HttpServer) {
             io.to(gameId).emit("endGame");
           },
           startPlayerRound: () => {
+            io.to(gameId).emit("clear");
             io.to(gameId).emit("startPlayerRound");
           },
           sendPlayerGuessedCorrect: () => {
