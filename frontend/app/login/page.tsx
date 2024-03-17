@@ -32,7 +32,7 @@ export default function Login() {
         }
 
         await fetch(
-            `${serverUrl}/api/login`,
+            `${serverUrl}/api/login/`,
             {
                 method: 'POST',
                 headers: {
