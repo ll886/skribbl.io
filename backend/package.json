@@ -8,7 +8,6 @@
     "build": "rm -rf out && mkdir out && tsc",
     "start": "node out/server.js",
     "watch": "npm run build && tsc-watch --onSuccess \"npm run start\"",
-    "build:deploy": "npm run build && cd ../front && npm run build && mv .next ../back/out/public",
     "start:deploy": "cd out && pm2 start server.js --port 3000"
   },
   "type": "module",
