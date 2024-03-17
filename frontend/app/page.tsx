@@ -5,6 +5,8 @@ import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/navbar";
 import { serverUrl } from "./config";
+import { Box, Button, TextField, Typography } from "@mui/material";
+import Background from "@/util/background";
 
 function Home() {
   const router = useRouter();
@@ -48,38 +50,48 @@ function Home() {
   }
 
   return (
-    <>
+    <Background>
       <Navbar />
-      <div>
-        <h1>skribbl.io</h1>
-        {loggedin ? null : (
+      <Box sx={{ textAlign: 'center', maxWidth: '400px', margin: 'auto' }}>
+        <Typography variant="h2" gutterBottom>
+            skribbl.io
+        </Typography>
+        {!loggedin && (
           <>
-            <div>{message}</div>
-            <label>
-              Player Name
-              <input type="text" value={guestId} onChange={handleInputChange} />
-            </label>
+            <Typography variant="body1" gutterBottom>
+              {message}
+            </Typography>
+            <TextField
+              label="Player Name"
+              variant="outlined"
+              fullWidth
+              value={guestId}
+              onChange={handleInputChange}
+              sx={{ marginBottom: '1rem' }}
+            />
           </>
         )}
 
-        <div>
-          <button
-            onClick={() => {
-              router.push(`/rooms/random`);
-            }}
+        <Box sx={{ display: 'flex', justifyContent: 'center', gap: '1rem' }}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => router.push(`/rooms/random`)}
+            style={{ backgroundColor: '#2196f3' }}
           >
             Play!
-          </button>
-          <button
-            onClick={() => {
-              router.push(`/MakeRoom`);
-            }}
+          </Button>
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={() => router.push(`/MakeRoom`)}
+            style={{ backgroundColor: '#9c27b0' }}
           >
             Create Private Room
-          </button>
-        </div>
-      </div>
-    </>
+          </Button>
+        </Box>
+      </Box>
+    </Background>
   );
 }
 

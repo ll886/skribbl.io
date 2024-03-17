@@ -7,6 +7,7 @@ import { home } from "@/links/links"
 import { loggedinRedirectHome } from "@/util/loggedin"
 import { serverUrl } from "../config"
 import Navbar from "@/components/navbar"
+import Background from "@/util/background"
 
 export default function Login() {
     const router = useRouter()
@@ -58,7 +59,7 @@ export default function Login() {
     }
 
     return (
-        <>
+        <Background>
             <Navbar />
             <Container maxWidth="xs">
                 <Typography variant="h4" align="center" gutterBottom>
@@ -109,6 +110,6 @@ export default function Login() {
                     </Button>
                 </form>
             </Container>
-        </>
+        </Background>
     )
 }

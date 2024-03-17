@@ -7,26 +7,31 @@ import {
   removePlayerFromGame,
   getGameState,
   startGame,
-  recordPlayerMessage,
+  handlePlayerMessage,
   GameEventHandler,
+  PublicGameInfo,
 } from "./game.js";
 import { getUserByToken } from "./user.js";
 
 interface ServerToClientEvents {
-  updateGameState: (gameState: Game) => void;
+  updateGameState: (gameState: PublicGameInfo) => void;
+  playerJoined: () => void;
+  playerLeft: () => void;
   joinGameError: () => void;
-  sendMessage: (message: string) => void;
+  sendMessage: (message: { text: string; color: string }) => void;
   currentUser: (data: { playerId: string }) => void;
   timerTick: (message: number) => void;
+  startPlayerRound: () => void;
   drawWordInfo: (word: string) => void;
   guessWordInfo: (wordLength: number) => void;
   playerRoundResult: (data: { [playerId: string]: number }) => void;
+  playerGuessedCorrect: () => void;
   endGame: () => void;
 }
 
 interface ClientToServerEvents {
   joinRoom: (gameId: string) => void;
-  sendMessage: (message: string) => void;
+  sendMessage: (message: { text: string; color: string }) => void;
   startGame: () => void;
 }
 
@@ -69,9 +74,16 @@ function initSocket(server: HttpServer) {
         socket.join(`${gameId}/${playerId}`);
         const gameState = getGameState(gameId);
         io.to(socket.id).emit("currentUser", { playerId: playerId });
-        io.to(gameId).emit("sendMessage", `${playerId} joined the room!`);
+        io.to(gameId).emit("sendMessage", {
+          text: `${playerId} joined the room!`,
+          color: "green",
+        });
+        io.to(gameId).emit("playerJoined");
         if (gameState.hostPlayerId === playerId) {
-          io.to(gameId).emit("sendMessage", `${playerId} is the room owner!`);
+          io.to(gameId).emit("sendMessage", {
+            text: `${playerId} is the room owner!`,
+            color: "orange",
+          });
         }
         io.to(gameId).emit("updateGameState", gameState);
       } catch (e: any) {
@@ -87,8 +99,8 @@ function initSocket(server: HttpServer) {
           tickTime: (time: number) => {
             io.to(gameId).emit("timerTick", time);
           },
-          sendMessage: (message: string) => {
-            io.to(gameId).emit("sendMessage", message);
+          sendMessage: (text, color) => {
+            io.to(gameId).emit("sendMessage", { text: text, color: color });
           },
           updateGameState: (gameState: Game) => {
             io.to(gameId).emit("updateGameState", gameState);
@@ -106,6 +118,12 @@ function initSocket(server: HttpServer) {
           },
           endGame: () => {
             io.to(gameId).emit("endGame");
+          },
+          startPlayerRound: () => {
+            io.to(gameId).emit("startPlayerRound");
+          },
+          sendPlayerGuessedCorrect: () => {
+            io.to(gameId).emit("playerGuessedCorrect");
           },
         };
         startGame(gameId, eventHandler);
@@ -126,12 +144,16 @@ function initSocket(server: HttpServer) {
           const priorHostPlayerId = getGameState(gameId).hostPlayerId;
           removePlayerFromGame(gameId, playerId);
           const gameState = getGameState(gameId);
-          io.to(gameId).emit("sendMessage", `${playerId} left the room!`);
+          io.to(gameId).emit("sendMessage", {
+            text: `${playerId} left the room!`,
+            color: "red",
+          });
+          io.to(gameId).emit("playerLeft");
           if (priorHostPlayerId !== gameState.hostPlayerId) {
-            io.to(gameId).emit(
-              "sendMessage",
-              `${gameState.hostPlayerId} is now the room owner!`
-            );
+            io.to(gameId).emit("sendMessage", {
+              text: `${gameState.hostPlayerId} is now the room owner!`,
+              color: "orange",
+            });
           }
           io.to(gameId).emit("updateGameState", gameState);
         } catch (error: any) {
@@ -144,8 +166,13 @@ function initSocket(server: HttpServer) {
       const gameId = socket.data.gameId;
       const playerId = socket.data.playerId;
       if (gameId !== null && playerId !== null) {
-        io.to(gameId).emit("sendMessage", `${playerId}: ${message}`);
-        recordPlayerMessage(gameId, playerId, message);
+        const messageToSend = handlePlayerMessage(gameId, playerId, message);
+        if (messageToSend !== undefined) {
+          io.to(gameId).emit("sendMessage", {
+            text: `${playerId}: ${messageToSend.text}`,
+            color: messageToSend.color,
+          });
+        }
       } else {
         console.log("error sending message due to missing info");
       }
