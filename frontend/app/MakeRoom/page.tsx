@@ -3,6 +3,9 @@ import React, { useState } from "react";
 import "./MakeRoom.css";
 import { serverUrl } from "../config";
 import { useRouter } from "next/navigation";
+import Navbar from "@/components/navbar";
+import { Typography } from "@mui/material";
+import Background from "@/util/background";
 
 const MakeRoom: React.FC = () => {
     const router = useRouter();
@@ -42,29 +45,33 @@ const MakeRoom: React.FC = () => {
     };
 
     return (
-        <div className="drawing-room-container">
-            <div className="option">
-                <label>Draw Time:</label>
-                <select value={drawTime} onChange={handleDrawTimeChange}>
-                    {[...Array(11)].map((_, index) => (
-                        <option key={index} value={20 + index * 10}>
-                            {20 + index * 10} seconds
-                        </option>
-                    ))}
-                </select>
+        <Background>
+            <Navbar />
+
+            <div className="drawing-room-container">
+                <div style={{ marginBottom: '20px' }}>
+                    <label style={{ marginRight: '10px' }}>Draw Time:</label>
+                    <select value={drawTime} onChange={handleDrawTimeChange}>
+                        {[...Array(11)].map((_, index) => (
+                            <option key={index} value={(20 + index * 10).toString()}>
+                                {20 + index * 10} seconds
+                            </option>
+                        ))}
+                    </select>
+                </div>
+                <div style={{ marginBottom: '20px' }}>
+                    <label style={{ marginRight: '10px' }}>Rounds:</label>
+                    <select value={numRounds} onChange={handleNumRoundsChange}>
+                        {[...Array(4)].map((_, index) => (
+                            <option key={index} value={(index + 2).toString()}>
+                                {index + 2}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+                <button onClick={handleSubmit} style={{ display: 'block', width: '100%', padding: '10px', backgroundColor: '#2196f3', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Create Room</button>
             </div>
-            <div className="option">
-                <label>Rounds:</label>
-                <select value={numRounds} onChange={handleNumRoundsChange}>
-                    {[...Array(4)].map((_, index) => (
-                        <option key={index} value={index + 2}>
-                            {index + 2}
-                        </option>
-                    ))}
-                </select>
-            </div>
-            <button onClick={handleSubmit}>Create Room</button>
-        </div>
+        </Background>
     );
 };
 
