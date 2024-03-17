@@ -49,7 +49,6 @@ const MakeRoom: React.FC = () => {
             <Navbar />
 
             <div className="drawing-room-container">
-                <Typography variant="h5" style={{ marginBottom: '20px', textAlign: 'center' }}>Create a Drawing Room</Typography>
                 <div style={{ marginBottom: '20px' }}>
                     <label style={{ marginRight: '10px' }}>Draw Time:</label>
                     <select value={drawTime} onChange={handleDrawTimeChange}>

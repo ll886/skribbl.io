@@ -342,13 +342,22 @@ function endGameIfEligible(
 function endGame(game: Game, eventHandler: GameEventHandler) {
   eventHandler.updateGameState(game);
   const playersArray = Object.values(game.players);
-  const player = playersArray.reduce((prevPlayer, currentPlayer) =>
-    prevPlayer.points > currentPlayer.points ? prevPlayer : currentPlayer
-  );
-  eventHandler.sendMessage(
-    `${player.id} won with a score of ${player.points}!`,
-    "orange"
-  );
+  const highestScore = Math.max(...playersArray.map(player => player.points));
+  const playersWithHighestScore = playersArray.filter(player => player.points === highestScore);
+
+  if (playersWithHighestScore.length === 1) {
+    const winner = playersWithHighestScore[0];
+    eventHandler.sendMessage(
+      `${winner.id} won with a score of ${winner.points}!`,
+      "orange"
+    );
+  } else {
+    const winners = playersWithHighestScore.map(player => player.id);
+    eventHandler.sendMessage(
+      `${winners.join(", ")} won with a score of ${highestScore}!`,
+      "orange"
+    );
+  }
   eventHandler.tickTime(0);
   game.currentRound = 1;
   game.roundHistory = [];
