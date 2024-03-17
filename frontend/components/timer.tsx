@@ -22,17 +22,17 @@ export default function Timer({ socket }: {socket: Socket}) {
 
     socket.on("timerTick", handleTimerTick);
     socket.on("playerRoundResult", () => {
-      audio.pause();
+      if (audio) {
+        audio.pause();
+      }
     });
   }, []);
 
   return (
     <Box>
       {timerValue !== null && (
-        <Box sx={{ textAlign: 'center' }}>
-          <Typography variant="body1">
-            Timer: {timerValue} seconds
-          </Typography>
+        <Box sx={{ textAlign: "center" }}>
+          <Typography variant="body1">Timer: {timerValue} seconds</Typography>
         </Box>
       )}
     </Box>

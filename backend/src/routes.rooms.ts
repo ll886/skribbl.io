@@ -33,6 +33,7 @@ router.post("/", async (req, res) => {
         hasStarted: false,
         players: {},
         playerOrder: [],
+        canvasState: "",
         hostPlayerId: undefined,
         currentRound: 1,
         currentArtistId: undefined,

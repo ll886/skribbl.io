@@ -36,6 +36,7 @@ interface PublicGameInfo {
   hasStarted: boolean;
   players: GamePlayers;
   playerOrder: string[];
+  canvasState: string;
   hostPlayerId: string | undefined;
   currentRound: number;
   currentArtistId: string | undefined;
@@ -393,6 +394,14 @@ function handlePlayerMessage(
   return message;
 }
 
+function storeCanvasState(gameId: string, state: string): void {
+  games[gameId].canvasState = state;
+}
+
+function clearCanvasState(gameId: string): void {
+  games[gameId].canvasState = "";
+}
+
 export {
   Player,
   Game,
@@ -401,6 +410,8 @@ export {
   removePlayerFromGame,
   getGames,
   getGameState,
+  storeCanvasState,
+  clearCanvasState,
   startGame,
   handlePlayerMessage,
   GameEventHandler,

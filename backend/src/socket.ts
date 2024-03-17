@@ -6,6 +6,8 @@ import {
   addPlayerToGame,
   removePlayerFromGame,
   getGameState,
+  storeCanvasState,
+  clearCanvasState,
   startGame,
   handlePlayerMessage,
   GameEventHandler,
@@ -13,11 +15,21 @@ import {
 } from "./game.js";
 import { getUserByToken } from "./user.js";
 
+type Point = { x: number; y: number };
+
 interface ServerToClientEvents {
   updateGameState: (gameState: PublicGameInfo) => void;
   playerJoined: () => void;
   playerLeft: () => void;
   joinGameError: () => void;
+  drawLine: (
+    prevPoint: Point,
+    currentPoint: Point,
+    color: string,
+    width: number
+  ) => void;
+  canvasStateFromServer: (state: string) => void;
+  clear: () => void;
   sendMessage: (message: { text: string; color: string }) => void;
   currentUser: (data: { playerId: string }) => void;
   timerTick: (message: number) => void;
@@ -31,6 +43,14 @@ interface ServerToClientEvents {
 
 interface ClientToServerEvents {
   joinRoom: (gameId: string) => void;
+  drawLine: (
+    prevPoint: Point,
+    currentPoint: Point,
+    color: string,
+    width: number
+  ) => void;
+  canvasState: (state: string) => void;
+  clear: () => void;
   sendMessage: (message: { text: string; color: string }) => void;
   startGame: () => void;
 }
@@ -48,7 +68,9 @@ function initSocket(server: HttpServer) {
     ServerToClientEvents,
     InterServerEvents,
     SocketData
-  >(server, { cookie: true });
+  >(server, {
+    cookie: true,
+  });
 
   io.on("connection", async (socket) => {
     console.log("a user connected");
@@ -86,8 +108,9 @@ function initSocket(server: HttpServer) {
           });
         }
         io.to(gameId).emit("updateGameState", gameState);
+        io.to(socket.id).emit("canvasStateFromServer", gameState.canvasState);
       } catch (e: any) {
-        console.log(e.message);
+        console.log(e);
         io.to(socket.id).emit("joinGameError");
       }
     });
@@ -120,6 +143,7 @@ function initSocket(server: HttpServer) {
             io.to(gameId).emit("endGame");
           },
           startPlayerRound: () => {
+            io.to(gameId).emit("clear");
             io.to(gameId).emit("startPlayerRound");
           },
           sendPlayerGuessedCorrect: () => {
@@ -175,6 +199,28 @@ function initSocket(server: HttpServer) {
         }
       } else {
         console.log("error sending message due to missing info");
+      }
+    });
+
+    socket.on("drawLine", (prevPoint, currentPoint, color, width) => {
+      const gameId = socket.data.gameId;
+      if (gameId !== null) {
+        socket
+          .to(gameId)
+          .emit("drawLine", prevPoint, currentPoint, color, width);
+      }
+    });
+
+    socket.on("canvasState", (state) => {
+      const gameId = socket.data.gameId;
+      storeCanvasState(gameId, state);
+    });
+
+    socket.on("clear", () => {
+      const gameId = socket.data.gameId;
+      if (gameId !== null) {
+        clearCanvasState(gameId);
+        io.to(gameId).emit("clear");
       }
     });
   });
