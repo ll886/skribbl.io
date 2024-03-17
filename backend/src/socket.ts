@@ -8,26 +8,37 @@ import {
   removePlayerFromGame,
   getGameState,
   storeCanvasState,
+  clearCanvasState,
 } from "./game.js";
 import { getUserByToken } from "./user.js";
 
-type Point = { x: number; y: number }
+type Point = { x: number; y: number };
 
 interface ServerToClientEvents {
   updateGameState: (gameState: Game) => void;
   joinGameError: () => void;
   sendMessage: (message: string) => void;
-  drawLine: (prevPoint: Point, currentPoint: Point, color: string, width: number) => void;
+  drawLine: (
+    prevPoint: Point,
+    currentPoint: Point,
+    color: string,
+    width: number
+  ) => void;
   canvasStateFromServer: (state: string) => void;
-  clear: (clearFunc: () => void) => void;
+  clear: () => void;
 }
 
 interface ClientToServerEvents {
   joinRoom: (gameId: string) => void;
   sendMessage: (message: string) => void;
-  drawLine: (prevPoint: Point, currentPoint: Point, color: string, width: number) => void;
+  drawLine: (
+    prevPoint: Point,
+    currentPoint: Point,
+    color: string,
+    width: number
+  ) => void;
   canvasState: (state: string) => void;
-  clear: (clearFunc: () => void) => void;
+  clear: () => void;
 }
 
 interface InterServerEvents {}
@@ -45,9 +56,7 @@ function initSocket(server: HttpServer) {
     SocketData
   >(server, {
     cookie: true,
-    cors: {
-    origin: '*'
-  }, });
+  });
 
   io.on("connection", async (socket) => {
     console.log("a user connected");
@@ -113,23 +122,25 @@ function initSocket(server: HttpServer) {
     socket.on("drawLine", (prevPoint, currentPoint, color, width) => {
       const gameId = socket.data.gameId;
       if (gameId !== null) {
-        socket.to(gameId).emit("drawLine",  prevPoint, currentPoint, color, width);
+        socket
+          .to(gameId)
+          .emit("drawLine", prevPoint, currentPoint, color, width);
       }
     });
 
-    socket.on('canvasState', (state) => {
+    socket.on("canvasState", (state) => {
       const gameId = socket.data.gameId;
       storeCanvasState(gameId, state);
-    })
+    });
 
-    socket.on('clear', (clearFunc: () => void) => {
+    socket.on("clear", () => {
       const gameId = socket.data.gameId;
       if (gameId !== null) {
-        socket.to(gameId).emit("clear",  clearFunc);
+        clearCanvasState(gameId);
+        io.to(gameId).emit("clear");
       }
-    })
+    });
   });
 }
-
 
 export { initSocket };

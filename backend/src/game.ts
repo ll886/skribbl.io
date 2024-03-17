@@ -104,6 +104,10 @@ function storeCanvasState(gameId: string, state: string): void {
   games[gameId].canvasState = state;
 }
 
+function clearCanvasState(gameId: string): void {
+  games[gameId].canvasState = "";
+}
+
 export {
   Player,
   Game,
@@ -113,4 +117,5 @@ export {
   getGames,
   getGameState,
   storeCanvasState,
+  clearCanvasState,
 };
