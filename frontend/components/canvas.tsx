@@ -51,14 +51,14 @@ const page: FC<{}> = ({socket}) => {
         />
       </div>
       <div className="w-full flex justify-center items-center">
-          <div>
-            <CompactPicker 
-              color={color} 
-              onChange={(e) => {
-                setColor(e.hex)
-                setWidth(5)
-              }}
-            />
+        <div>
+          <CompactPicker 
+            color={color} 
+            onChange={(e) => {
+              setColor(e.hex)
+              setWidth(5)
+            }}
+          />
           </div>
           <div>
             <button
