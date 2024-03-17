@@ -2,7 +2,7 @@ import { useState, useEffect, ChangeEvent, KeyboardEvent, useRef, useLayoutEffec
 import "./chat.css";
 
 export default function Chat({ socket }) {
-  const [messages, setMessages] = useState<string[]>([]);
+  const [messages, setMessages] = useState<{ text: string, color: string }[]>([]);
   const [textBoxVal, setTextBoxVal] = useState<string>("");
   const chatBoxRef = useRef<HTMLDivElement>(null);
 
@@ -13,7 +13,11 @@ export default function Chat({ socket }) {
   }, [messages]);
 
   useEffect(() => {
-    socket.on("sendMessage", (message: string) => {
+    socket.on("sendMessage", (message: { text: string, color: string }) => {
+      console.log("received message");
+      console.log(message);
+      console.log(message.text);
+      console.log(message.color);
       setMessages((prevMessages) => [...prevMessages, message]);
     });
   }, []);
@@ -32,7 +36,7 @@ export default function Chat({ socket }) {
   const handleSubmit = () => {
     if (textBoxVal.trim() !== "") {
       setTextBoxVal("");
-      socket.emit("sendMessage", textBoxVal);
+      socket.emit("sendMessage", { text: textBoxVal, color: "black" });
     }
   };
 
@@ -40,8 +44,8 @@ export default function Chat({ socket }) {
     <div>
       <div ref={chatBoxRef} className="chat-box">
         {messages.map((message, index) => (
-          <div key={index} className="message">
-            {message}
+          <div key={index} className="message" style={{ color: message.color || "black" }}>
+            {message.text}
           </div>
         ))}
       </div>
