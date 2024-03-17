@@ -33,13 +33,6 @@ const page: FC<{}> = ({socket}) => {
     })
 
     socket.on('clear', clear)
-
-    return () => {
-      socket.off('drawLine')
-      socket.off('get-canvas-state')
-      socket.off('canvasStateFromServer')
-      socket.off('clear')
-    }
   }, [canvasRef])
 
   function createLine({ prevPoint, currentPoint, ctx }: Draw) {

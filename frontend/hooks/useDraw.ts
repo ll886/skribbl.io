@@ -9,7 +9,6 @@ export const useDraw = (onDraw: ({ ctx, currentPoint, prevPoint }: Draw) => void
   const onMouseDown = () => setMouseDown(true)
 
   const clear = () => {
-    console.log("bruhhh")
     const canvas = canvasRef.current
     if (!canvas) return
 

@@ -119,7 +119,6 @@ function initSocket(server: HttpServer) {
 
     socket.on('canvasState', (state) => {
       const gameId = socket.data.gameId;
-      console.log('received canvas state')
       storeCanvasState(gameId, state);
     })
 
