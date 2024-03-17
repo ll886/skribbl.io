@@ -15,11 +15,9 @@ const page: FC<{}> = ({socket}) => {
 
     socket.on('get-canvas-state', () => {
       if (!canvasRef.current?.toDataURL()) return
-      console.log('sending canvas state')
     })
 
     socket.on('canvasStateFromServer', (state: string) => {
-      console.log('I received the state')
       const img = new Image()
       img.src = state
       img.onload = () => {
