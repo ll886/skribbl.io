@@ -228,7 +228,6 @@ async function startRound(
       if (endGameIfEligible(game, eventHandler)) {
         return;
       }
-
       eventHandler.tickTime(timeRemaining);
       await wait(1);
     }
@@ -344,6 +343,9 @@ function endGame(game: Game, eventHandler: GameEventHandler) {
     "orange"
   );
   eventHandler.tickTime(0);
+  game.currentRound = 1;
+  game.hasStarted = false;
+  eventHandler.updateGameState(game);
   eventHandler.endGame();
 }
 
