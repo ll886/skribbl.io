@@ -12,6 +12,8 @@ import { generateGuestIdIfNull } from "@/app/names";
 import { Game } from "@/app/interfaces";
 import Word from "@/components/word";
 import Leaderboard from "@/components/leaderboard";
+import { getAudio } from "@/app/audio";
+import GameAudioPlayer from "@/components/game_audio_player";
 
 function Page() {
   const { roomId } = useParams();
@@ -58,6 +60,8 @@ function Page() {
   const handleCopyLink = async () => {
     try {
       await navigator.clipboard.writeText(currentURL.current);
+      const audio = getAudio("click");
+      audio.play();
       console.log("Link copied to clipboard!");
       setIsLinkCopied(true);
 
@@ -70,6 +74,8 @@ function Page() {
   };
 
   const handleStartGame = () => {
+    const audio = getAudio("click");
+    audio.play();
     socket.emit("startGame");
   };
 
@@ -106,6 +112,7 @@ function Page() {
           </div>
         )}
         <Timer socket={socket} />
+        <GameAudioPlayer socket={socket} />
       </div>
     </div>
   );

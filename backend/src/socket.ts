@@ -15,13 +15,17 @@ import { getUserByToken } from "./user.js";
 
 interface ServerToClientEvents {
   updateGameState: (gameState: PublicGameInfo) => void;
+  playerJoined: () => void;
+  playerLeft: () => void;
   joinGameError: () => void;
   sendMessage: (message: { text: string; color: string }) => void;
   currentUser: (data: { playerId: string }) => void;
   timerTick: (message: number) => void;
+  startPlayerRound: () => void;
   drawWordInfo: (word: string) => void;
   guessWordInfo: (wordLength: number) => void;
   playerRoundResult: (data: { [playerId: string]: number }) => void;
+  playerGuessedCorrect: () => void;
   endGame: () => void;
 }
 
@@ -74,6 +78,7 @@ function initSocket(server: HttpServer) {
           text: `${playerId} joined the room!`,
           color: "green",
         });
+        io.to(gameId).emit("playerJoined");
         if (gameState.hostPlayerId === playerId) {
           io.to(gameId).emit("sendMessage", {
             text: `${playerId} is the room owner!`,
@@ -114,6 +119,12 @@ function initSocket(server: HttpServer) {
           endGame: () => {
             io.to(gameId).emit("endGame");
           },
+          startPlayerRound: () => {
+            io.to(gameId).emit("startPlayerRound");
+          },
+          sendPlayerGuessedCorrect: () => {
+            io.to(gameId).emit("playerGuessedCorrect");
+          },
         };
         startGame(gameId, eventHandler);
       } catch (error: any) {
@@ -137,6 +148,7 @@ function initSocket(server: HttpServer) {
             text: `${playerId} left the room!`,
             color: "red",
           });
+          io.to(gameId).emit("playerLeft");
           if (priorHostPlayerId !== gameState.hostPlayerId) {
             io.to(gameId).emit("sendMessage", {
               text: `${gameState.hostPlayerId} is now the room owner!`,

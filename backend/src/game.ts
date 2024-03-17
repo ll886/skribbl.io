@@ -30,7 +30,6 @@ interface Round {
   playerRounds: PlayerRound[];
 }
 
-
 interface PublicGameInfo {
   id: string;
   rules: GameRules;
@@ -56,6 +55,8 @@ interface GameEventHandler {
   tickTime: (message: number) => void;
   sendMessage: (text: string, color: string) => void;
   updateGameState: (gameState: Game) => void;
+  startPlayerRound: () => void;
+  sendPlayerGuessedCorrect: () => void;
   sendDrawWordInfo: (word: string, artistId: string) => void;
   sendGuessWordInfo: (wordLength: number, guesserIds: string[]) => void;
   sendPlayerRoundResult: (data: { [playerId: string]: number }) => void;
@@ -155,6 +156,10 @@ function startGame(gameId: string, eventHandler: GameEventHandler): undefined {
     return;
   }
 
+  for (const playerId of games[gameId].playerOrder) {
+    games[gameId].players[playerId].points = 0;
+  }
+
   if (games[gameId].playerOrder.length > 1) {
     // recursively start rounds
     startRound(gameId, eventHandler);
@@ -192,6 +197,7 @@ async function startRound(
 
     const word = chooseEasyWord(game.pastWords);
     game.currentWord = word;
+    eventHandler.startPlayerRound();
     eventHandler.sendDrawWordInfo(word, game.currentArtistId);
     eventHandler.sendGuessWordInfo(word.length, getGuesserIds(game));
     eventHandler.sendMessage(`${game.currentArtistId} is drawing now!`, "blue");
@@ -224,7 +230,7 @@ async function startRound(
     }
     eventHandler.updateGameState(game);
 
-    for (let timeRemaining = 5; timeRemaining >= 0; timeRemaining--) {
+    for (let timeRemaining = 4; timeRemaining >= 0; timeRemaining--) {
       if (endGameIfEligible(game, eventHandler)) {
         return;
       }
@@ -271,6 +277,7 @@ function evaluateCurrentPlayerRound(
         `${playerGuess.playerId} guessed the word!`,
         "green"
       );
+      eventHandler.sendPlayerGuessedCorrect();
     }
   });
 }
@@ -344,6 +351,7 @@ function endGame(game: Game, eventHandler: GameEventHandler) {
   );
   eventHandler.tickTime(0);
   game.currentRound = 1;
+  game.roundHistory = [];
   game.hasStarted = false;
   eventHandler.updateGameState(game);
   eventHandler.endGame();
@@ -387,5 +395,5 @@ export {
   startGame,
   handlePlayerMessage,
   GameEventHandler,
-  PublicGameInfo
+  PublicGameInfo,
 };

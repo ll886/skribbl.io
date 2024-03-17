@@ -1,3 +1,4 @@
+import { getAudio } from "@/app/audio";
 import React, { useEffect, useState } from "react";
 
 export default function Timer({ socket }) {
@@ -6,6 +7,14 @@ export default function Timer({ socket }) {
   useEffect(() => {
     const handleTimerTick = (value: number) => {
       setTimerValue(value);
+      if (value === 5) {
+        const audio = getAudio("clock");
+        audio.play();
+        setTimeout(() => {
+          audio.pause();
+          audio.currentTime = 0;
+        }, 6 * 1000);
+      }
     };
 
     socket.on("timerTick", handleTimerTick);
