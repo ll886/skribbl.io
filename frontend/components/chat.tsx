@@ -14,10 +14,6 @@ export default function Chat({ socket }) {
 
   useEffect(() => {
     socket.on("sendMessage", (message: { text: string, color: string }) => {
-      console.log("received message");
-      console.log(message);
-      console.log(message.text);
-      console.log(message.color);
       setMessages((prevMessages) => [...prevMessages, message]);
     });
   }, []);
