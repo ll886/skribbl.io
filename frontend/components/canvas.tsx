@@ -29,7 +29,6 @@ const page: FC<{}> = ({socket}) => {
     socket.on('clear', clear)
 
     return () => {
-      socket.off('draw-line')
       socket.off('drawLine')
       socket.off('canvasStateFromServer')
       socket.off('clear')
