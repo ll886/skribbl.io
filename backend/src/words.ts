@@ -160,7 +160,10 @@ const easyWords = [
 
 
 function chooseWordForGame(words: string[], exclusions: string[]): string {
-  const availableWords = words.filter(str => !exclusions.includes(str));
+  let availableWords = words.filter(str => !exclusions.includes(str));
+  if (availableWords.length === 0) {
+    availableWords = words;
+  }
   const randomIndex = Math.floor(Math.random() * availableWords.length);
   return availableWords[randomIndex];
 }
