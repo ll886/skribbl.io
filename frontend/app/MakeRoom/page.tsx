@@ -5,6 +5,7 @@ import { serverUrl } from "../config";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/navbar";
 import { Typography } from "@mui/material";
+import Background from "@/util/background";
 
 const MakeRoom: React.FC = () => {
     const router = useRouter();
@@ -44,7 +45,7 @@ const MakeRoom: React.FC = () => {
     };
 
     return (
-        <>
+        <Background>
             <Navbar />
 
             <div className="drawing-room-container">
@@ -71,7 +72,7 @@ const MakeRoom: React.FC = () => {
                 </div>
                 <button onClick={handleSubmit} style={{ display: 'block', width: '100%', padding: '10px', backgroundColor: '#2196f3', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Create Room</button>
             </div>
-        </>
+        </Background>
     );
 };
 
