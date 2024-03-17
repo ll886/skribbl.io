@@ -43,7 +43,6 @@ const MakeRoom: React.FC = () => {
 
     return (
         <div className="drawing-room-container">
-            <h2>Create a Drawing Room</h2>
             <div className="option">
                 <label>Draw Time:</label>
                 <select value={drawTime} onChange={handleDrawTimeChange}>
