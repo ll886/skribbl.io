@@ -93,6 +93,7 @@ function Page() {
       </div>
       <div className="w-1/4 p-4">
         <Round socket={socket} />
+        <Timer socket={socket} />
         <Chat socket={socket} />
 
         <div>
@@ -111,7 +112,6 @@ function Page() {
             </button>
           </div>
         )}
-        <Timer socket={socket} />
         <GameAudioPlayer socket={socket} />
       </div>
     </div>
