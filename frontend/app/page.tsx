@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Navbar from "@/components/navbar";
 import { serverUrl } from "./config";
 import { Box, Button, TextField, Typography } from "@mui/material";
+import Background from "@/util/background";
 
 function Home() {
   const router = useRouter();
@@ -49,7 +50,7 @@ function Home() {
   }
 
   return (
-    <>
+    <Background>
       <Navbar />
       <Box sx={{ textAlign: 'center', maxWidth: '400px', margin: 'auto' }}>
         <Typography variant="h2" gutterBottom>
@@ -90,7 +91,7 @@ function Home() {
           </Button>
         </Box>
       </Box>
-    </>
+    </Background>
   );
 }
 
