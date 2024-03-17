@@ -1,4 +1,5 @@
 import { getAudio } from "@/app/audio";
+import { Box, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 
 export default function Timer({ socket }) {
@@ -21,10 +22,14 @@ export default function Timer({ socket }) {
   }, []);
 
   return (
-    <div>
+    <Box>
       {timerValue !== null && (
-        <div className="timer">Timer: {timerValue} seconds</div>
+        <Box sx={{ textAlign: 'center' }}>
+          <Typography variant="body1">
+            Timer: {timerValue} seconds
+          </Typography>
+        </Box>
       )}
-    </div>
+    </Box>
   );
 }
