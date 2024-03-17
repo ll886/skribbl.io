@@ -87,14 +87,14 @@ function Page() {
     <>
       <Navbar />
       <div className="flex h-screen bg-white">
-        <div className="flex-grow ph-4">
+        <div className="flex-grow px-4">
           <Leaderboard gameState={gameState} />
         </div>
-        <div className="flex-grow ph-4">
+        <div className="flex-grow px-4">
           <Word socket={socket} />
           <Canvas socket={socket} />
         </div>
-        <div className="w-1/4 ph-4">
+        <div className="w-1/4 px-4">
           <Round socket={socket} />
           <Timer socket={socket} />
           <Chat socket={socket} />

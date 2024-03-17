@@ -1,5 +1,6 @@
 import { useState, useEffect, ChangeEvent, KeyboardEvent, useRef, useLayoutEffect } from "react";
 import "./chat.css";
+import { Box, Button, TextField, Typography } from "@mui/material";
 
 export default function Chat({ socket }) {
   const [messages, setMessages] = useState<{ text: string, color: string }[]>([]);
@@ -37,25 +38,24 @@ export default function Chat({ socket }) {
   };
 
   return (
-    <div>
-      <div ref={chatBoxRef} className="chat-box">
-        {messages.map((message, index) => (
-          <div key={index} className="message" style={{ color: message.color || "black" }}>
-            {message.text}
-          </div>
-        ))}
-      </div>
-      <div className="text-box">
-        <input
-          type="text"
-          value={textBoxVal}
-          onChange={handleInputChange}
-          onKeyPress={handleKeyPress}
-          placeholder="Type your guess here..."
-        />
-        <div className="character-count">{textBoxVal.length}</div>
-        <button onClick={handleSubmit}>Send</button>
-      </div>
-    </div>
+    <Box>
+      <Box ref={chatBoxRef} sx={{ p: 2, marginBottom: 2, border: '1px solid #ccc', borderRadius: '4px', maxHeight: '200px', overflowY: 'auto' }}>
+          {messages.map((message, index) => (
+              <Typography key={index} variant="body1" sx={{ color: message.color || "black" }}>{message.text}</Typography>
+          ))}
+      </Box>
+      <Box display="flex" alignItems="center" gap={1}>
+          <TextField
+              type="text"
+              value={textBoxVal}
+              onChange={handleInputChange}
+              onKeyPress={handleKeyPress}
+              placeholder="Type your guess here..."
+              fullWidth
+          />
+          <Typography variant="body2" sx={{ color: 'text.secondary' }}>{textBoxVal.length}</Typography>
+          <Button variant="outlined" onClick={handleSubmit}>Send</Button>
+      </Box>
+    </Box>
   );
 }
