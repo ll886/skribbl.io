@@ -57,7 +57,7 @@ function makeToken() {
   return crypto.randomBytes(32).toString("hex");
 }
 
-app.get("/loggedin", async (req, res) => {
+app.get("/api/loggedin", async (req, res) => {
   const token = req.cookies.token;
 
   if (token === null || !tokenStorage.hasOwnProperty(token)) {
@@ -67,7 +67,7 @@ app.get("/loggedin", async (req, res) => {
   res.send(true);
 });
 
-app.post("/signup", async (req, res) => {
+app.post("/api/signup", async (req, res) => {
   const body = req.body;
 
   const email: string = body.email;
@@ -118,7 +118,7 @@ app.post("/signup", async (req, res) => {
   }
 });
 
-app.post("/login", async (req, res) => {
+app.post("/api/login", async (req, res) => {
   const body = req.body;
 
   const email: string = body.email;
@@ -145,7 +145,7 @@ app.post("/login", async (req, res) => {
   }
 });
 
-app.post("/logout", (req, res) => {
+app.post("/api/logout", (req, res) => {
   const token = req.cookies.token;
 
   if (token !== null && tokenStorage.hasOwnProperty(token)) {

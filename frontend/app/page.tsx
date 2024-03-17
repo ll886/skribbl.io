@@ -24,7 +24,7 @@ function Home() {
   }, []);
 
   const isLoggedIn = async () => {
-    await fetch(`${serverUrl}/loggedin`, {
+    await fetch(`${serverUrl}/api/loggedin`, {
       credentials: "include",
     })
       .then(async (res) => {

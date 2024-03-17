@@ -36,7 +36,7 @@ export default function Signup() {
         }
 
         await fetch(
-            `${serverUrl}/signup`, 
+            `${serverUrl}/api/signup`, 
             {
                 method: 'POST',
                 headers: {

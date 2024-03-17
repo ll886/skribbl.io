@@ -3,7 +3,7 @@ import { home } from "@/links/links"
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime"
 
 export const loggedinRedirectHome = async (router: AppRouterInstance) => {
-    const json = await fetch(`${serverUrl}/loggedin`, {
+    const json = await fetch(`${serverUrl}/api/loggedin`, {
         credentials: 'include'
     }).then(async (res) => {
         return res.json()
