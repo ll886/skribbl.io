@@ -3,12 +3,13 @@ import React, { useEffect, useState } from "react";
 
 export default function Timer({ socket }) {
   const [timerValue, setTimerValue] = useState<number | null>(null);
+  let audio: HTMLAudioElement;
 
   useEffect(() => {
     const handleTimerTick = (value: number) => {
       setTimerValue(value);
       if (value === 5) {
-        const audio = getAudio("clock");
+        audio = getAudio("clock");
         audio.play();
         setTimeout(() => {
           audio.pause();
@@ -18,6 +19,9 @@ export default function Timer({ socket }) {
     };
 
     socket.on("timerTick", handleTimerTick);
+    socket.on("playerRoundResult", () => {
+      audio.pause();
+    });
   }, []);
 
   return (
