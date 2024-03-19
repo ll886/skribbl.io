@@ -2,7 +2,7 @@
 
 ## Running the project on your local machine
 
-Move into the frontend directory:
+In one terminal, move into the frontend directory:
 ```
 cd frontend
 ```
@@ -12,12 +12,12 @@ Install the required packages:
 npm i
 ```
 
-Run the server locally:
+Run:
 ```
 npm run dev
 ```
 
-Move into the backend directory:
+In another terminal, move into the backend directory:
 ```
 cd backend
 ```
@@ -27,7 +27,12 @@ Install the required packages:
 npm i
 ```
 
-Run the server locally:
+Set up database
+```
+npm run setup
+```
+
+Run:
 ```
 npm run watch
 ```
