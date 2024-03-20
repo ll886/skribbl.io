@@ -87,7 +87,7 @@ function Home() {
             onClick={() => router.push(`/MakeRoom`)}
             style={{ backgroundColor: '#9c27b0' }}
           >
-            Create Private Room
+            Create Room
           </Button>
         </Box>
       </Box>

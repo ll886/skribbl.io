@@ -32,6 +32,7 @@ interface Round {
 
 interface PublicGameInfo {
   id: string;
+  isPrivate: boolean;
   rules: GameRules;
   hasStarted: boolean;
   players: GamePlayers;
