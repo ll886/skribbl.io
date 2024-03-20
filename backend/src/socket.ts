@@ -6,6 +6,7 @@ import {
   addPlayerToGame,
   removePlayerFromGame,
   getGameState,
+  getFullGameState,
   storeCanvasState,
   clearCanvasState,
   startGame,
@@ -95,6 +96,7 @@ function initSocket(server: HttpServer) {
         socket.join(gameId);
         socket.join(`${gameId}/${playerId}`);
         const gameState = getGameState(gameId);
+        const fullGameState = getFullGameState(gameId);
         io.to(socket.id).emit("currentUser", { playerId: playerId });
         io.to(gameId).emit("sendMessage", {
           text: `${playerId} joined the room!`,
@@ -109,6 +111,9 @@ function initSocket(server: HttpServer) {
         }
         io.to(gameId).emit("updateGameState", gameState);
         io.to(socket.id).emit("canvasStateFromServer", gameState.canvasState);
+        if (fullGameState.currentWord !== undefined) {
+          io.to(socket.id).emit("guessWordInfo", fullGameState.currentWord.length);
+        }
       } catch (e: any) {
         console.log(e);
         io.to(socket.id).emit("joinGameError");

@@ -151,6 +151,14 @@ function getGameState(gameId: string): PublicGameInfo {
   return filteredGame;
 }
 
+function getFullGameState(gameId: string): Game {
+  if (!games.hasOwnProperty(gameId)) {
+    throw new Error("invalid gameId");
+  }
+  return games[gameId];
+}
+
+
 function startGame(gameId: string, eventHandler: GameEventHandler): undefined {
   if (!games.hasOwnProperty(gameId)) {
     gameLog(gameId, "game room no longer exists, exiting game flow");
@@ -410,6 +418,7 @@ export {
   removePlayerFromGame,
   getGames,
   getGameState,
+  getFullGameState,
   storeCanvasState,
   clearCanvasState,
   startGame,

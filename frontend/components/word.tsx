@@ -7,7 +7,7 @@ export default function Word({ socket }: {socket: Socket}) {
     const [guessWord, setGuessWord] = useState<string>("")
 
     useEffect(() => {
-        socket.on("updateGameState", () => {
+        socket.on("startPlayerRound", () => {
             setDrawWord("")
             setGuessWord("")
         })
