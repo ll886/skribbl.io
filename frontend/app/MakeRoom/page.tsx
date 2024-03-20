@@ -12,6 +12,8 @@ const MakeRoom: React.FC = () => {
 
     const [drawTime, setDrawTime] = useState<number>(20);
     const [numRounds, setNumRounds] = useState<number>(2);
+    const [isPrivate, setIsPrivate] = useState<boolean>(false);
+
 
     const handleDrawTimeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         setDrawTime(parseInt(e.target.value));
@@ -19,6 +21,10 @@ const MakeRoom: React.FC = () => {
 
     const handleNumRoundsChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         setNumRounds(parseInt(e.target.value));
+    };
+
+    const handlePrivateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setIsPrivate(e.target.checked);
     };
 
     const handleSubmit = async () => {
@@ -30,7 +36,8 @@ const MakeRoom: React.FC = () => {
                 },
                 body: JSON.stringify({
                     drawTime: drawTime,
-                    numRounds: numRounds
+                    numRounds: numRounds,
+                    isPrivate: isPrivate,
                 })
             });
 
@@ -68,6 +75,10 @@ const MakeRoom: React.FC = () => {
                             </option>
                         ))}
                     </select>
+                </div>
+                <div style={{ marginBottom: '20px' }}>
+                    <label style={{ marginRight: '10px' }}>Private:</label>
+                    <input type="checkbox" checked={isPrivate} onChange={handlePrivateChange} />
                 </div>
                 <button onClick={handleSubmit} style={{ display: 'block', width: '100%', padding: '10px', backgroundColor: '#2196f3', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Create Room</button>
             </div>

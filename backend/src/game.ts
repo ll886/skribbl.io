@@ -32,6 +32,7 @@ interface Round {
 
 interface PublicGameInfo {
   id: string;
+  isPrivate: boolean;
   rules: GameRules;
   hasStarted: boolean;
   players: GamePlayers;
@@ -150,6 +151,14 @@ function getGameState(gameId: string): PublicGameInfo {
   const { currentWord, roundHistory, ...filteredGame } = games[gameId];
   return filteredGame;
 }
+
+function getFullGameState(gameId: string): Game {
+  if (!games.hasOwnProperty(gameId)) {
+    throw new Error("invalid gameId");
+  }
+  return games[gameId];
+}
+
 
 function startGame(gameId: string, eventHandler: GameEventHandler): undefined {
   if (!games.hasOwnProperty(gameId)) {
@@ -410,6 +419,7 @@ export {
   removePlayerFromGame,
   getGames,
   getGameState,
+  getFullGameState,
   storeCanvasState,
   clearCanvasState,
   startGame,

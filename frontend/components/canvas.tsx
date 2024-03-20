@@ -15,7 +15,7 @@ export default function Canvas({ socket }: {socket: Socket}) {
   const [drawWord, setDrawWord] = useState("");
 
   useEffect(() => {
-    socket.on("updateGameState", () => {
+    socket.on("guessWordInfo", () => {
       setDrawWord("");
     });
 
